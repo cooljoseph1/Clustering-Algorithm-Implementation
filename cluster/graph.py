@@ -58,7 +58,7 @@ class Graph(object):
 
 
 class RandomGraph(Graph):
-    def __init__(self, num_vertices, num_clusters, flip=0.05, keep=0.2):
+    def __init__(self, num_vertices, num_clusters, flip=0.05, keep_inside=0.2, keep_outside=0.05):
         """
         Create a random graph. The random graph is created so that
         the optimum solution has `num_clusters` clusters and
@@ -97,7 +97,7 @@ class RandomGraph(Graph):
 
             for i, v1 in enumerate(cluster):
                 for v2 in cluster[:i]:
-                    if random.random() >= keep:
+                    if random.random() >= keep_inside:
                         continue # skip over a lot of edges
                     correlation = "-" if random.random() < flip else "+"
                     if correlation == "+":
@@ -127,7 +127,7 @@ class RandomGraph(Graph):
 
                 for v1 in cluster1:
                     for v2 in cluster2:
-                        if random.random() >= keep:
+                        if random.random() >= keep_outside:
                             continue # skip over a lot of edges
                         correlation = "+" if random.random() < flip else "-"
                         if correlation == "+":
@@ -149,9 +149,37 @@ class RandomGraph(Graph):
 
 if __name__ == "__main__":
     # Test out the RandomGraph
-    graph = RandomGraph(10, 3, keep=1.0)
+    graph = RandomGraph(50, 5)
     print(graph.optimal_clusters)
     print("\n\nPLUS")
     print(graph.plus)
     print("\n\nMINUS")
     print(graph.minus)
+
+    import networkx as nx
+    import matplotlib.pyplot as plt
+    G = nx.Graph()
+
+    colors = ['#000000', '#00FF00', '#0000FF', '#FF0000', '#01FFFE', '#FFA6FE', '#FFDB66', '#006401', '#010067', '#95003A', '#007DB5', '#FF00F6', '#FFEEE8', '#774D00', '#90FB92', '#0076FF', '#D5FF00', '#FF937E', '#6A826C', '#FF029D', '#FE8900', '#7A4782', '#7E2DD2', '#85A900', '#FF0056', '#A42400', '#00AE7E', '#683D3B', '#BDC6FF', '#263400', '#BDD393', '#00B917', '#9E008E', '#001544', '#C28C9F', '#FF74A3', '#01D0FF', '#004754', '#E56FFE', '#788231', '#0E4CA1', '#91D0CB', '#BE9970', '#968AE8', '#BB8800', '#43002C', '#DEFF74', '#00FFC6', '#FFE502', '#620E00', '#008F9C', '#98FF52', '#7544B1', '#B500FF', '#00FF78', '#FF6E41', '#005F39', '#6B6882', '#5FAD4E', '#A75740', '#A5FFD2', '#FFB167', '#009BFF', '#E85EBE']
+
+    color_map = []
+    for i, cluster in enumerate(graph.optimal_clusters):
+        for v in cluster:
+            G.add_node(v)
+            color_map.append(colors[i%len(colors)])
+
+    for v1 in graph.minus:
+        for v2 in graph.minus[v1]:
+            G.add_edge(v1, v2, weight=-1, color="red")
+    for v1 in graph.plus:
+        for v2 in graph.plus[v1]:
+            G.add_edge(v1, v2, weight=1, color="blue")
+
+
+    pos = nx.shell_layout(G)
+    edges = G.edges()
+    colors = [G[u][v]['color'] for u,v in edges]
+    weights = [G[u][v]['weight'] for u,v in edges]
+
+    nx.draw(G, pos, node_color=color_map, edge_color=colors, width=weights)
+    plt.show()
