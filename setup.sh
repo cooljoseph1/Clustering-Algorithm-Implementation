@@ -13,6 +13,8 @@ sort -o data/words.txt{,}
 
 echo "Downloading antonyms..."
 curl https://raw.githubusercontent.com/taikuukaits/SimpleWordlists/master/Thesaurus-Antonyms-All.txt -o data/antonyms.txt
+sed -i '1d' data/antonyms.txt
 
 echo "Downloading synonyms..."
 curl https://raw.githubusercontent.com/taikuukaits/SimpleWordlists/master/Thesaurus-Synonyms-All.txt -o data/synonyms.txt
+sed -i '1d' data/synonyms.txt
