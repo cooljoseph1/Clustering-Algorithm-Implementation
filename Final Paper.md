@@ -39,7 +39,7 @@ Luckily, in practice $\varepsilon$ can be raised to much larger values while mai
 For both datasets running time improved as $\varepsilon$ increased, as fewer edges needed to be considered. However, the thesaurus dataset differed from the random dataset with the errors. As $\varepsilon$ transitioned from less than $0.25$ to more than $0.25$ we saw a pronounced increase in the number of errors on the real-world data, while a marked improvement in accurracy for the random dataset. Note that determining the optimum for the thesaurus dataset is NP-hard, so we instead give the error count.
 
 ![[opposite_trends.png]]
-This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters. Also, the thesaurus dataset is extremely sparse, which is apparent from the lack of a bump in running time past the $\varepsilon=0.25$ mark.
+This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters.
 
 For the random dataset, we see this improvement in error ratio even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even the sparser random datasets have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
 
@@ -50,43 +50,46 @@ $\varepsilon < 0.25$ | $\varepsilon > 0.25$
 To get a denser model based on real-world data, we create a new dataset using word vectors. It is well known their dot products are a measure of correlation, with very positive dot products being highly correlated while very negative dot products are anticorrelated, so we assign plus-edges to the top percentiles of these dot products, and minus-edges to the bottom. Changing this fraction allows for sparser or denser graphs.
 
 For all levels of sparsity, we an error ratio trend similar to that of the random graphs:
+![[percentile_change.png]]
+For both the random graph and the graph based on word vectors, the best clustering occurs when $\varepsilon$ is slightly larger than $0.25$.
 
+Likewise, the running time improves as $\varepsilon$ increases:
+![[running_time_as_eps_varies_word_vector.png]]
 
+This suggests several things, most notably that filtering by isolated neighbors is actually detrimental to the performance of the algorithm! Although it's theoretically necessary to do this filtering to gurantee an $O(1)$ approximation (as the thesaurus dataset somewhat shows), in practice it's not only faster to not do so, but also more accurate.
 
-Regardless, it suggests random datasets are not a good model for real-world datasets, so from here on out we will use only the latter. To allow control for the density of graphs, we created an additional dataset from word vectors. Two words vectors are given a plus edge if their dot products are among the top few percent of all word-word dot products (very positive), and a minus edge if they are among the bottom few percent (very negative). As expected, we see a similar trend as to the thesaurus dataset:
+In conclusion, real world data often looks similar to the random dataset we built, and for these types of data, setting $\varepsilon$ to be slightly more than $0.25$ is a good choice.
 
-< INSERT IMAGES HERE >
-
-
-
-
-
-< INSERT IMAGES HERE >
-
-In practice, then, there is extremely compelling evidence that filtering out "sparse" vertices actually hampers the algorithm, not improves it! If anything, this filter seems only necessary to prove their theoretical bounds, and doesn't actually improve the clustering in practice. This implies that the following, simpler algorithm, might actually have the same theoretical bounds as well:
-1. 
-
-### Operation Count
-
-First, we tested on a graph with about ten thousand vertices, one million edges, and ten clusters. Holding $c$ fixed at one gives
-and ![[error_ratio_c_constant.png]]
-Holding $\varepsilon$ fixed at $0.2$ gives the following graphs:
-![[acs_eps_constant.png]] ![[ops_eps_constant.png]]
-![[error_ratio_eps_constant.png]]
-As you can see, once the operation count begins flat-lining (i.e. we get close to every edge being read), the error ratio increases. There's a sweet spot in the middle with a low error ratio, when $c\approx 30\varepsilon^{-2}$.
 ## Choice of $c$
-In their paper, Assadi and Wang state that "there is an absolute constant $c > 0$" for which their algorithm works, but they never specify exactly what $c$ has to be. In fact, they only imply what restrictions $c$ might have by constraints on other variables. These constraints imply that $c$ to be at least $\varepsilon^2$. Since $\varepsilon^2$ is rather small, this means that $c$ can be just about anything.
+In their paper, Assadi and Wang state that "there is an absolute constant $c > 0$" for which their algorithm works, but they never specify exactly what $c$ has to be. In fact, they only imply what restrictions $c$ might have by constraints on other variables. These constraints imply that $c$ to be on the order of at least $\varepsilon^2$. Since $\varepsilon^2$ is rather small, this means that $c$ can be just about anything.
 
-Nevertheless, it's not very *useful* to make $c$ as small as possible. While lowering $c$ speeds up the algorithm by requiring fewer graph accesses, it also lowers its performance because the algorithm has less information to make use of. In this section, we explore the tradeoffs of what  $c$ should be, and demonstrate that $c \approx 2$ yields good results with competitive results.
+Nevertheless, setting $c = \varepsilon^2$ is hardly useful. While lowering $c$ speeds up the algorithm by requiring fewer graph accesses, it also lowers its performance because the algorithm has less information to make use of. In this section, we explore the tradeoffs of what  $c$ should be, and demonstrate that $c \approx 2$ yields good results with competitive results.
 
-TODO: The choice of $c \approx 2$ was arbitrary and a stand-in for what the correct value should be. Fix this!!
+In the previous section, we showed that a good choice of $\varepsilon$ is not much more than $0.25$. For this section, we set $\varepsilon = 0.3$.
 
-TODO: Actually make this section
+Using the random graph, we get the following approximations as $c$ varies:
+![[error_ratio_as_c_varies.png]]
+Using the word vector graph gives a similar chart:
+![[error_ratio_as_c_varies_word_vector.png]]
+
+In both cases, the running time scales linearly with $c$:
+
+Random | Word Vector
+:----:|:----:
+![[running_time_as_c_varies.png]] | ![[running_time_as_c_varies_word_vector.png]]
+
+A good trade off, then, between runtime and error ratio appears to be setting $c \approx 2$.
 
 ## Sublinear Time
-In this section, we use the previously chosen $\varepsilon$ and $c$ to analyze the speed of the algorithm and demonstrate that it is sublinear in time (even without the gurantees of the theoretical results).
+It's easy enough to theoretically show that the algorithm described above is sublinear in the number of edges no matter what the specific choices of $\varepsilon$ and $c$ are. (Indeed, Assadi and Wang's paper is important not because their algorithm is sublinear in time, but because it has $O(1)$ competitiveness.) In this section, we demonstrate this by analyzing the runtime for fixed $\varepsilon = 0.3$ and $c = 2$.
 
-TODO: Make this section
+TODO: Uh oh James! This doesn't actually work! The graphs appear to have linear time!!!
+Random | Word Vector
+:----:|:----:
+![[running_time_as_edges_varies.png]] | ![[running_time_as_edges_varies_word_vector.png]]
+
+I think this is where we need the filter part! We have sublinear time for low $\varepsilon$. The following graph is for where $\varepsilon = 0.01$:
+![[error_ratio_as_edges_varies_low_epsilon.png]]
 
 ## Competitiveness
 Just how competitive is the algorithm Assadi and Wang develop? In this section, we demonstrate that it typically finds solutions that are less than three times worse than the optimum. This is a similar ratio of competitiveness to top algorithms like
