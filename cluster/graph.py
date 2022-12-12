@@ -56,6 +56,25 @@ class Graph(object):
             raise NotImplementedError("Can only access one value for now.")
         return self[("-", other[0])]
 
+    def get_clustering_error(self, labels):
+        error = 0
+        for v1, lis in self.plus.items():
+            for v2 in lis:
+                if labels[v1] != labels[v2]:
+                    error += 1
+                    
+        for v1, lis in self.minus.items():
+            for v2 in lis:
+                if labels[v1] == labels[v2]:
+                    error += 1
+        return error
+
+    def get_optimum_clustering_error(self):
+        """
+        Implement in sub-class
+        """
+        return None
+
 
 class RandomGraph(Graph):
     def __init__(self, num_vertices, num_edges, num_clusters, prob_flip=0.05):
@@ -91,6 +110,7 @@ class RandomGraph(Graph):
 
         added_edges = set()
         tries = 0
+        self.flipped_edges = 0
         # Add edges
         while len(added_edges) < num_edges and tries < 2 * num_edges:
             tries += 1
@@ -100,13 +120,27 @@ class RandomGraph(Graph):
             if (v1, v2) in added_edges or (v2, v1) in added_edges:
                 continue
             added_edges.add((v1, v2))
-            correlation = "+" if (self.cluster_map[v1] == self.cluster_map[v2]) ^ (random.random() < prob_flip) else "-"
+            flip = random.random() < prob_flip
+            self.flipped_edges += 2 * flip
+            correlation = "+" if (self.cluster_map[v1] == self.cluster_map[v2]) ^ flip else "-"
             if correlation == "+":
                 self.plus[v1].append(v2)
                 self.plus[v2].append(v1)
             else:
                 self.minus[v1].append(v2)
                 self.minus[v2].append(v1)
+
+    def get_optimum_clustering_error(self):
+        """
+        Return an upper bound on the optimum clustering error
+        by using the (probably optimal) clustering we used to
+        generate the graph.
+
+        This happens to equal the number of edges we flipped
+        when constructing the graph.
+        """
+        return self.flipped_edges
+    
 
 
 if __name__ == "__main__":
