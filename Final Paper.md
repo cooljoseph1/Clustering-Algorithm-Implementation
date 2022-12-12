@@ -34,8 +34,6 @@ Assadi and Wang's main result is that their algorithm results in a constant-appr
 
 Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we did the following:
 
-
-<<<<<<< HEAD
 ### Operation Count
 
 First, we tested on a graph with about ten thousand vertices, one million edges, and ten clusters. Holding $c$ fixed at one gives
@@ -44,7 +42,6 @@ Holding $\varepsilon$ fixed at $0.2$ gives the following graphs:
 ![[acs_eps_constant.png]] ![[ops_eps_constant.png]]
 ![[error_ratio_eps_constant.png]]
 As you can see, once the operation count begins flat-lining (i.e. we get close to every edge being read), the error ratio increases. There's a sweet spot in the middle with a low error ratio, when $c\approx 30\varepsilon^{-2}$.
-=======
 ## Choice of $c$
 In their paper, Assadi and Wang state that "there is an absolute constant $c > 0$" for which their algorithm works, but they never specify exactly what $c$ has to be. In fact, they only imply what restrictions $c$ might have by constraints on other variables. These constraints imply that $c$ to be at least $\varepsilon^2$. Since $\varepsilon^2$ is rather small, this means that $c$ can be just about anything.
 
@@ -66,4 +63,3 @@ Just how competitive is the algorithm Assadi and Wang develop? In this section, 
 
 ## References
  ["Sublinear Time and Space Algorithms for Correlation Clustering via Sparse-Dense Decompositions"](https://doi.org/10.48550/arxiv.2109.14528)
->>>>>>> 01cf72829d83a6a51a0076d1da0afaf64b8f1d15
