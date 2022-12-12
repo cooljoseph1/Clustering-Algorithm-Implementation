@@ -36,6 +36,6 @@ if __name__ == "__main__":
         lines.append((v, words & set(N.split(","))))
     graph.add("+", lines)
     """
-    graph = RandomGraph(100000, 10000000, 100)
+    graph = RandomGraph(1000, 1000000, 100, prob_flip=0.001)
     labels, clusters = Cluster(graph)
     #print(labels["angry"], clusters[10])
