@@ -2,12 +2,17 @@ from graph import Graph, RandomGraph
 from cluster import cluster
 from numpy import argmin
 from load import word_graph
+from load_vector import vector_graph
 
 def test(graph, eps, c):
     labels, clusters, operation_counter = cluster(graph, eps, c)
     error = graph.get_clustering_error(labels)
-    opt_error = 1#graph.get_optimum_clustering_error()
-    print()
+    opt_error = graph.get_optimum_clustering_error() or 1
+    print(len(clusters))
+    for c in clusters:
+        if c < 0:
+            continue
+        print(clusters[c])
     #for tag, num in sorted(operation_counter.tagged_counts.items(), key=lambda x: x[1]):
     #    print("Num for tag", tag, "is", num)
     return operation_counter.operation_count, operation_counter.graph_access_count, error, opt_error
@@ -48,7 +53,7 @@ if __name__ == "__main__":
     
     #vertices, edges, clusters, prob_flip = 10_000, 1_000_000, 10, 0.45
     #graph = RandomGraph(vertices, edges, clusters, prob_flip)
-    graph = word_graph()
+    graph = vector_graph(10000, 0.05, 0.05)
     
 
     """
