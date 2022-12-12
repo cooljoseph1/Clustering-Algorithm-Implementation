@@ -39,15 +39,18 @@ Luckily, in practice $\varepsilon$ can be raised to much larger values while mai
 For both datasets running time improved as $\varepsilon$ increased, as fewer edges needed to be considered. However, the thesaurus dataset differed from the random dataset with the errors. As $\varepsilon$ transitioned from less than $0.25$ to more than $0.25$ we saw a pronounced increase in the number of errors on the real-world data, while a marked improvement in accurracy for the random dataset. Note that determining the optimum for the thesaurus dataset is NP-hard, so we instead give the error count.
 
 ![[opposite_trends.png]]
-This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters.
+This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters. Also, the thesaurus dataset is extremely sparse, which is apparent from the lack of a bump in running time past the $\varepsilon=0.25$ mark.
 
-This improvement for the random dataset at the $\varepsilon=0.25$ mark continues even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even the sparser random datasets have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
+For the random dataset, we see this improvement in error ratio even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even the sparser random datasets have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
 
 $\varepsilon < 0.25$ | $\varepsilon > 0.25$
 :----:|:----:
 ![[error_ratio_as_edges_varies_low_epsilon.png]] | ![[error_ratio_as_edges_varies_high_epsilon.png]]
 
-However, the structures of the two datasets are 
+To get a denser model based on real-world data, we create a new dataset using word vectors. It is well known their dot products are a measure of correlation, with very positive dot products being highly correlated while very negative dot products are anticorrelated, so we assign plus-edges to the top percentiles of these dot products, and minus-edges to the bottom. Changing this fraction allows for sparser or denser graphs.
+
+For all levels of sparsity, we an error ratio trend similar to that of the random graphs:
+
 
 
 Regardless, it suggests random datasets are not a good model for real-world datasets, so from here on out we will use only the latter. To allow control for the density of graphs, we created an additional dataset from word vectors. Two words vectors are given a plus edge if their dot products are among the top few percent of all word-word dot products (very positive), and a minus edge if they are among the bottom few percent (very negative). As expected, we see a similar trend as to the thesaurus dataset:

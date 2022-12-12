@@ -2,12 +2,16 @@ from graph import Graph, RandomGraph
 from cluster import cluster
 from numpy import argmin
 from load import word_graph
+from load_vector import vector_graph
 
 def test(graph, eps, c):
     labels, clusters, operation_counter = cluster(graph, eps, c)
     error = graph.get_clustering_error(labels)
-    opt_error = 1#graph.get_optimum_clustering_error()
-    print()
+    opt_error = graph.get_optimum_clustering_error() or 1
+    print(len(clusters))
+    for c in clusters:
+        if c < 0:
+            continue
     #for tag, num in sorted(operation_counter.tagged_counts.items(), key=lambda x: x[1]):
     #    print("Num for tag", tag, "is", num)
     return operation_counter.operation_count, operation_counter.graph_access_count, error, opt_error
@@ -45,11 +49,10 @@ if __name__ == "__main__":
     import numpy as np
     import matplotlib.pyplot as plt
 
-    
+
     #vertices, edges, clusters, prob_flip = 10_000, 1_000_000, 10, 0.45
     #graph = RandomGraph(vertices, edges, clusters, prob_flip)
-    graph = word_graph()
-    
+
 
     """
     # Make graph for finding optimal epsilon
@@ -129,38 +132,46 @@ if __name__ == "__main__":
     plt.legend()
     """
 
-    
+
     # Make graph for finding optimal epsilon
-    ops_data = []
-    acs_data = []
-    err_data = []
-    eps_list = [0.04861111*i for i in range(2, 20)]
-    for eps in eps_list:
-        c = 1
-        ops, acs, err, opt_err = test(graph, eps, c)
-        ops_data.append(ops)
-        acs_data.append(acs)
-        err_data.append(err / opt_err)
-        print("(Graph Length, epsilon, c) =", len(graph), eps, c)
-        print("(Operations, Graph accesses) =", ops, acs)
-        print("(Clustering error, Optimal error, ratio) =", err, opt_err, err / opt_err)
+
+    fig, axs = plt.subplots(2, 2)
+    for ax, percentile in zip(axs.flat, [0.0002, 0.004, 0.08, 1.6]):
+        percentile /= 100
+        graph = vector_graph(10000, percentile, percentile)
+        ops_data = []
+        acs_data = []
+        err_data = []
+        eps_list = [0.04861111*i for i in range(2, 20)]
+        for eps in eps_list:
+            c = 1
+            ops, acs, err, opt_err = test(graph, eps, c)
+            ops_data.append(ops)
+            acs_data.append(acs)
+            err_data.append(err / opt_err)
+            print("(Graph Length, epsilon, c) =", len(graph), eps, c)
+            print("(Operations, Graph accesses) =", ops, acs)
+            print("(Clustering error, Optimal error, ratio) =", err, opt_err, err / opt_err)
 
 
-    ops = np.array(ops_data)
-    acs = np.array(acs_data)
-    err = np.array(err_data)
-    plt.plot(eps_list, ops, label="Operation Count")
-    plt.plot(eps_list, acs, label="Access Count")
-    plt.xlabel(r"$\varepsilon$")
-    plt.legend()
-    plt.title(r"Running time as $\varepsilon$ varies")
+        ops = np.array(ops_data)
+        acs = np.array(acs_data)
+        err = np.array(err_data)
+        """
+        ax.plot(eps_list, ops, label="Operation Count")
+        ax.plot(eps_list, acs, label="Access Count")
+        ax.set_xlabel(r"$\varepsilon$")
+        ax.legend()
+        ax.set_title(r"Running time as $\varepsilon$ varies")
+        plt.show()
+        """
+
+        ax.plot(eps_list, err, label="Error Ratio")
+        ax.set_xlabel(r"$\varepsilon$")
+        ax.set_title(r"Error ratio as $\varepsilon$ varies, percentile="+str(percentile*100)+r"%")
+        ax.legend()
+
     plt.show()
-
-    plt.plot(eps_list, err, label="Error Ratio")
-    plt.xlabel(r"$\varepsilon$")
-    plt.title(r"Error ratio as $\varepsilon$ varies")
-    plt.legend()
-    
 
     """
     x, y = np.meshgrid(eps_list, c_list)
