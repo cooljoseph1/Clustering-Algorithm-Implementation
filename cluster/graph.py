@@ -4,8 +4,8 @@ class Graph(object):
     def __init__(self, vertices):
         # List of vertices. Can be words, numbers, anything hashable.
         self.vertices = vertices
-        self.minus = {v: set() for v in vertices}
-        self.plus = {v: set() for v in vertices}
+        self.minus = {v: [] for v in vertices}
+        self.plus = {v: [] for v in vertices}
     def add(self, sign="+", lines=[]):
         """Lines should have the following format
         v1,[u11,u12,u13,...]
@@ -19,7 +19,7 @@ class Graph(object):
             raise ValueError("Sign must be + or -.")
 
         for v, N in lines:
-            adj[v] |= N
+            adj[v].extend(N)
 
     def deg(self, sign, v):
         if sign == "+":
@@ -58,7 +58,7 @@ class Graph(object):
 
 
 class RandomGraph(Graph):
-    def __init__(self, num_vertices, num_clusters, flip=0.05, keep_inside=0.2, keep_outside=0.05):
+    def __init__(self, num_vertices, num_edges, num_clusters, prob_flip=0.05):
         """
         Create a random graph. The random graph is created so that
         the optimum solution has `num_clusters` clusters and
@@ -87,69 +87,29 @@ class RandomGraph(Graph):
             for i, j in zip(break_points[:-1], break_points[1:])
         ]
 
+        self.cluster_map = {v : cluster for cluster in self.optimal_clusters for v in cluster}
 
-        # Add correlations between nodes in the same cluster
-        for cluster in self.optimal_clusters:
-            lines1_plus = {v1: set() for v1 in cluster}
-            lines1_minus = {v1: set() for v1 in cluster}
-            lines2_plus = {v2: set() for v2 in cluster}
-            lines2_minus = {v2: set() for v2 in cluster}
+        added_edges = set()
+        tries = 0
+        # Add edges
+        while len(added_edges) < num_edges and tries < 2 * num_edges:
+            tries += 1
+            v1, v2 = random.choice(self.vertices), random.choice(self.vertices)
+            if v1 == v2:
+                continue
+            added_edges.add((v1, v2))
+            correlation = "+" if (self.cluster_map[v1] == self.cluster_map[v2]) ^ (random.random() < prob_flip) else "-"
+            if correlation == "+":
+                self.plus[v1].append(v2)
+                self.plus[v2].append(v1)
+            else:
+                self.minus[v1].append(v2)
+                self.minus[v2].append(v1)
 
-            for i, v1 in enumerate(cluster):
-                for v2 in cluster[:i]:
-                    if random.random() >= keep_inside:
-                        continue # skip over a lot of edges
-                    correlation = "-" if random.random() < flip else "+"
-                    if correlation == "+":
-                        lines1_plus[v1].add(v2)
-                        lines2_plus[v2].add(v1)
-                    else:
-                        lines1_minus[v1].add(v2)
-                        lines2_minus[v2].add(v1)
-
-            lines1_plus = list(lines1_plus.items())
-            lines1_minus = list(lines1_minus.items())
-            lines2_plus = list(lines2_plus.items())
-            lines2_minus = list(lines2_minus.items())
-
-            self.add("+", lines1_plus)
-            self.add("-", lines1_minus)
-            self.add("+", lines2_plus)
-            self.add("-", lines2_minus)
-
-        # Add correlations between different clusters
-        for i, cluster1 in enumerate(self.optimal_clusters):
-            for cluster2 in self.optimal_clusters[:i]:
-                lines1_plus = {v1: set() for v1 in cluster1}
-                lines1_minus = {v1: set() for v1 in cluster1}
-                lines2_plus = {v2: set() for v2 in cluster2}
-                lines2_minus = {v2: set() for v2 in cluster2}
-
-                for v1 in cluster1:
-                    for v2 in cluster2:
-                        if random.random() >= keep_outside:
-                            continue # skip over a lot of edges
-                        correlation = "+" if random.random() < flip else "-"
-                        if correlation == "+":
-                            lines1_plus[v1].add(v2)
-                            lines2_plus[v2].add(v1)
-                        else:
-                            lines1_minus[v1].add(v2)
-                            lines2_minus[v2].add(v1)
-
-                lines1_plus = list(lines1_plus.items())
-                lines1_minus = list(lines1_minus.items())
-                lines2_plus = list(lines2_plus.items())
-                lines2_minus = list(lines2_minus.items())
-
-                self.add("+", lines1_plus)
-                self.add("-", lines1_minus)
-                self.add("+", lines2_plus)
-                self.add("-", lines2_minus)
 
 if __name__ == "__main__":
     # Test out the RandomGraph
-    graph = RandomGraph(50, 5)
+    graph = RandomGraph(41, 410, 5)
     print(graph.optimal_clusters)
     print("\n\nPLUS")
     print(graph.plus)

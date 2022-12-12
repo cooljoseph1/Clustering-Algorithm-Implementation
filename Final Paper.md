@@ -1,5 +1,9 @@
-# Implementation of Sublinear Clustering Algorithm
-## By James Camacho and Joseph Camacho
+---
+title:  Implementation of Sublinear Clustering Algorithm (Rough Draft)
+author: James Camacho and Joseph Camacho
+date: December 12, 2022
+geometry: margin=1in
+---
 
 ### Overview
 We implement the algorithm ["Sublinear Time and Space Algorithms for Correlation Clustering via Sparse-Dense Decompositions"](https://doi.org/10.48550/arxiv.2109.14528). This clusters data in a (+/-)-labeled graph, where pluses mean two vertices are correlated and minuses mean anticorrelation. For example, a graph of all English words could have pluses between synonyms and minuses between antonyms. In other datasets, such as document clustering, these graphs can be incredibly large and dense, leading to a superlinear number of edges compared to the vertices. Even a single pass through the edges can be infeasible. This algorithm presents an approximation scheme that is $\smash{\tilde{O}(n)}$ in the number of vertices, often sublinear in the size of the dataset.

@@ -1,7 +1,8 @@
-from graph import Graph
+from graph import Graph, RandomGraph
 from cluster import Cluster
 
 if __name__ == "__main__":
+    """
     # Load word data.
     with open("data/words.txt") as f:
         words = set(f.read().split("\n"))
@@ -34,6 +35,7 @@ if __name__ == "__main__":
             continue
         lines.append((v, words & set(N.split(","))))
     graph.add("+", lines)
-
+    """
+    graph = RandomGraph(1000, 1000000, 100, prob_flip=0.001)
     labels, clusters = Cluster(graph)
-    print(labels["angry"], clusters[10])
+    #print(labels["angry"], clusters[10])
