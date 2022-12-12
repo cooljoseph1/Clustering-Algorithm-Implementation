@@ -133,7 +133,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
             return False
         operation_counter.add(15, tag="C_filter")
         operation_counter.add_set_intersection(N_sample[u], low_epsP, tag="C_filter")
-        if deg[u] > 0 and len(N_sample[u] & low_epsP) < (1 - 6*epsP - 6 * deltaP - eps) * t * deg[v]/deg[u]:
+        if deg[u] == 0 or len(N_sample[u] & low_epsP) < (1 - 6*epsP - 6 * deltaP - eps) * t * deg[v]/deg[u]:
             return False
         return True
 
