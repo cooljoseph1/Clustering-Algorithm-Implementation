@@ -1,3 +1,6 @@
 data/
 __pycache__/
 Final Paper.pdf
+*.npy
+*.vec
+*.gz
