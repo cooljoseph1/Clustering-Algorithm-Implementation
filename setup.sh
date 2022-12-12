@@ -21,3 +21,8 @@ sed -i '1d' data/antonyms.txt
 echo "Downloading synonyms..."
 curl https://raw.githubusercontent.com/taikuukaits/SimpleWordlists/master/Thesaurus-Synonyms-All.txt -o data/synonyms.txt
 sed -i '1d' data/synonyms.txt
+
+echo "Calculating word vector correlations..."
+cd word_vector
+python create_correlations.py
+cd ..
