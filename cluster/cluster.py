@@ -148,8 +148,8 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
     # Build up dense D
     if verbose > 0:
         print("Building D...")
+        print("Sample length is", len(Sample))
     operation_counter.add(4 * len(Sample))
-    print("Sample length is", len(Sample))
     D = [v for v in Sample if (not light_tester(v)) & (not sparse_tester(v))]
 
     # Build candidate sets

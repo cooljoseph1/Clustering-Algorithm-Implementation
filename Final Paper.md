@@ -36,3 +36,10 @@ Luckily, in practice $\varepsilon$ can be raised to much larger values while mai
 
 
 ### Operation Count
+
+First, we tested on a graph with about ten thousand vertices, one million edges, and ten clusters. Holding $c$ fixed at one gives
+![[counts_c_constant.png]]and ![[error_ratio_c_constant.png]]
+Holding $\varepsilon$ fixed at $0.2$ gives the following graphs:
+![[acs_eps_constant.png]] ![[ops_eps_constant.png]]
+![[error_ratio_eps_constant.png]]
+As you can see, once the operation count begins flat-lining (i.e. we get close to every edge being read), the error ratio increases. There's a sweet spot in the middle with a low error ratio, when $c\approx 30\varepsilon^{-2}$.
