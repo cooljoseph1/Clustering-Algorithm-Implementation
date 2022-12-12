@@ -27,18 +27,36 @@ In step two, a vertex $v$ is chosen with probability $O(\log n / \deg(v))$. Note
 
 The filtering in step three is a little more complicated. First, all vertices that have much denser neighbors should be filtered out. This is according to the formula $$\varepsilon \deg(v) < |\{u\text{ neighbors }v:\deg(u) > (1+\varepsilon)\deg(v)\}|.$$Then, sparse vertices are filtered out. Call the *low* neighbors of $v$ the vertices $u$ where $$\deg(u) < (1+7\varepsilon)\deg(v).$$A low neighbor $u$ is *isolated* if $$|\text{sampled neighbors}(u)\cap \text{low}(v)| < (1-4\varepsilon)t,$$i.e. very few of its neighbors are also low neighbors of $v$. If a large fraction, at least $2\varepsilon\deg(v)$, of the low neighbors of $v$ are isolated, then $v$ is considered sparse. We're left with only the densest vertices from our sample in step two.
 
-TODO: Explain how dense --> clusters
+From here, we use some more magic numbers to build candidate clusters. For each dense vertex $v$, we build a candidate set, including a low neighbor $u$ if $$1+22\varepsilon > \frac{\deg(u)}{\deg(v)} > \frac{(1-67\varepsilon)t}{|\text{sampled neighbors}(u)\cap\text{low}(v)|}.$$Recall that there are $t$ sampled neighbors of $u$, so the right inequality means that most neighbors of $u$ are also low neighbors of $v$. In most of our analysis we have $\varepsilon > 1/67$, so this inequality doesn't do much, but it will serve to increase accuracy as $\varepsilon$ gets very small.
 
-In this paper we explore how the choice of $\varepsilon$ and constant multiplier in $t = O(\varepsilon^{-2}\log n)$ affect the operation count and accuracy of the algorithm. We answer questions like, exactly how close are the candidate clusters to a laminar set family? How many intersections can we expect? Does $\varepsilon$ *really* need to be smaller than $1 / 360$, or does a larger value like $\varepsilon = 1/8$ or $\varepsilon \approx 1$ work? How do sparser or denser datasets change these results?
+In this paper we explore more how the choice of $\varepsilon$ and constant multiplier in $t = O(\varepsilon^{-2}\log n)$ affect the operation count and accuracy of the algorithm. We answer questions like, exactly how close are the candidate clusters to a laminar set family? How many intersections can we expect? Do we *really* need $\varepsilon < 1/360$ in practice, or would larger values like $\varepsilon = 1/64$, $\varepsilon=1/2$ or $\varepsilon \approx 1$ fare equally well? How do sparser or denser datasets change these results?
 
 ## Choice of $\varepsilon$
 Assadi and Wang's main result is that their algorithm results in a constant-approximation of the optimal clustering in sublinear time. However, the quality of this constant depends very much on their choice of $\varepsilon$. In particular, they showed that the constant is roughly proportional to $\varepsilon^{-2}$. This makes restricting $\varepsilon$ to less than $1 / 360$ (as certain theoretical results of theirs require) suboptimal: If the optimal clustering of a graph has a single incorrect correllation, using their clustering algorithm with $\varepsilon = 1 / 361$ could have on the order of over 100,000 incorrect edges. This is a terrible approximation!
 
-Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we created a random graph with ten thousand vertices, one million edges, and ten clusters, randomly flipped 10% of the edges' correlations, and tested how well the algorithm performed as $\varepsilon$ varied. We found a sudden, pronounced improvement in performance as soon as $\varepsilon$ transitions from less than $0.25$ to more than $0.25$. Furthermore, running time improves as $\varepsilon$ increases (as fewer edges are considered).
+Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we use two datasets. The first is a graph of English words with plus-edges between synonyms and minus-edges between antonyms. The second is a random graph with ten thousand vertices, one million edges, and ten clusters; edges within a cluster are assigned a plus while edges between clusters are labelled with a minus, however we randomly flip between 10% and 45% of these correlations.
+
+For both datasets running time improved as $\varepsilon$ increased, as fewer edges needed to be considered. However, the thesaurus dataset differed from the random dataset with the errors. As $\varepsilon$ transitioned from less than $0.25$ to more than $0.25$ we saw a pronounced increase in the number of errors on the real-world data, while a marked improvement in accurracy for the random dataset. Note that determining the optimum for the thesaurus dataset is NP-hard, so we instead give the error count.
+
+![[opposite_trends.png]]
+This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters.
+
+This improvement for the random dataset at the $\varepsilon=0.25$ mark continues even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even the sparser random datasets have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
+
+$\varepsilon < 0.25$ | $\varepsilon > 0.25$
+:----:|:----:
+![[error_ratio_as_edges_varies_low_epsilon.png]] | ![[error_ratio_as_edges_varies_high_epsilon.png]]
+
+However, the structures of the two datasets are 
+
+
+Regardless, it suggests random datasets are not a good model for real-world datasets, so from here on out we will use only the latter. To allow control for the density of graphs, we created an additional dataset from word vectors. Two words vectors are given a plus edge if their dot products are among the top few percent of all word-word dot products (very positive), and a minus edge if they are among the bottom few percent (very negative). As expected, we see a similar trend as to the thesaurus dataset:
 
 < INSERT IMAGES HERE >
 
-These trends continue even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph.
+
+
+
 
 < INSERT IMAGES HERE >
 
@@ -48,7 +66,7 @@ In practice, then, there is extremely compelling evidence that filtering out "sp
 ### Operation Count
 
 First, we tested on a graph with about ten thousand vertices, one million edges, and ten clusters. Holding $c$ fixed at one gives
-![[counts_c_constant.png]]and ![[error_ratio_c_constant.png]]
+and ![[error_ratio_c_constant.png]]
 Holding $\varepsilon$ fixed at $0.2$ gives the following graphs:
 ![[acs_eps_constant.png]] ![[ops_eps_constant.png]]
 ![[error_ratio_eps_constant.png]]
