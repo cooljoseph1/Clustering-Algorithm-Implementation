@@ -27,12 +27,23 @@ In step two, a vertex $v$ is chosen with probability $O(\log n / \deg(v))$. Note
 
 The filtering in step three is a little more complicated. First, all vertices that have much denser neighbors should be filtered out. This is according to the formula $$\varepsilon \deg(v) < |\{u\text{ neighbors }v:\deg(u) > (1+\varepsilon)\deg(v)\}|.$$Then, sparse vertices are filtered out. Call the *low* neighbors of $v$ the vertices $u$ where $$\deg(u) < (1+7\varepsilon)\deg(v).$$A low neighbor $u$ is *isolated* if $$|\text{sampled neighbors}(u)\cap \text{low}(v)| < (1-4\varepsilon)t,$$i.e. very few of its neighbors are also low neighbors of $v$. If a large fraction, at least $2\varepsilon\deg(v)$, of the low neighbors of $v$ are isolated, then $v$ is considered sparse. We're left with only the densest vertices from our sample in step two.
 
+TODO: Explain how dense --> clusters
+
 In this paper we explore how the choice of $\varepsilon$ and constant multiplier in $t = O(\varepsilon^{-2}\log n)$ affect the operation count and accuracy of the algorithm. We answer questions like, exactly how close are the candidate clusters to a laminar set family? How many intersections can we expect? Does $\varepsilon$ *really* need to be smaller than $1 / 360$, or does a larger value like $\varepsilon = 1/8$ or $\varepsilon \approx 1$ work? How do sparser or denser datasets change these results?
 
 ## Choice of $\varepsilon$
 Assadi and Wang's main result is that their algorithm results in a constant-approximation of the optimal clustering in sublinear time. However, the quality of this constant depends very much on their choice of $\varepsilon$. In particular, they showed that the constant is roughly proportional to $\varepsilon^{-2}$. This makes restricting $\varepsilon$ to less than $1 / 360$ (as certain theoretical results of theirs require) suboptimal: If the optimal clustering of a graph has a single incorrect correllation, using their clustering algorithm with $\varepsilon = 1 / 361$ could have on the order of over 100,000 incorrect edges. This is a terrible approximation!
 
-Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we did the following:
+Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we created a random graph with ten thousand vertices, one million edges, and ten clusters, randomly flipped 10% of the edges' correlations, and tested how well the algorithm performed as $\varepsilon$ varied. We found a sudden, pronounced improvement in performance as soon as $\varepsilon$ transitions from less than $0.25$ to more than $0.25$. Furthermore, running time improves as $\varepsilon$ increases (as fewer edges are considered).
+
+< INSERT IMAGES HERE >
+
+These trends continue even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph.
+
+< INSERT IMAGES HERE >
+
+In practice, then, there is extremely compelling evidence that filtering out "sparse" vertices actually hampers the algorithm, not improves it! If anything, this filter seems only necessary to prove their theoretical bounds, and doesn't actually improve the clustering in practice. This implies that the following, simpler algorithm, might actually have the same theoretical bounds as well:
+1. 
 
 ### Operation Count
 

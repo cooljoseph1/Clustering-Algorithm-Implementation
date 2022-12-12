@@ -1,11 +1,15 @@
 from graph import Graph, RandomGraph
 from cluster import cluster
 from numpy import argmin
+from load import word_graph
 
 def test(graph, eps, c):
     labels, clusters, operation_counter = cluster(graph, eps, c)
     error = graph.get_clustering_error(labels)
-    opt_error = graph.get_optimum_clustering_error()
+    opt_error = 1#graph.get_optimum_clustering_error()
+    print()
+    #for tag, num in sorted(operation_counter.tagged_counts.items(), key=lambda x: x[1]):
+    #    print("Num for tag", tag, "is", num)
     return operation_counter.operation_count, operation_counter.graph_access_count, error, opt_error
 
 def best_c(graph, eps, start=1, delta=0.01):
@@ -41,8 +45,47 @@ if __name__ == "__main__":
     import numpy as np
     import matplotlib.pyplot as plt
 
-    vertices, edges, clusters, prob_flip = 1_000, 1_000_000, 10, 0.01
-    graph = RandomGraph(vertices, edges, clusters, prob_flip)
+    
+    #vertices, edges, clusters, prob_flip = 10_000, 1_000_000, 10, 0.45
+    #graph = RandomGraph(vertices, edges, clusters, prob_flip)
+    graph = word_graph()
+    
+
+    """
+    # Make graph for finding optimal epsilon
+    ops_data = []
+    acs_data = []
+    err_data = []
+    edges_list = [2_00 * x for x in range(10, 500, 20)]
+    for edges in edges_list:
+        c = 1
+        eps = 0.04
+        vertices, edges, clusters, prob_flip = 2_00, edges, 10, 0.1
+        graph = RandomGraph(vertices, edges, clusters, prob_flip)
+        ops, acs, err, opt_err = test(graph, eps, c)
+        ops_data.append(ops)
+        acs_data.append(acs)
+        err_data.append(err / opt_err)
+        print("(Graph Length, epsilon, c) =", len(graph), eps, c)
+        print("(Operations, Graph accesses) =", ops, acs)
+        print("(Clustering error, Optimal error, ratio) =", err, opt_err, err / opt_err)
+
+
+    ops = np.array(ops_data)
+    acs = np.array(acs_data)
+    err = np.array(err_data)
+    plt.plot(edges_list, ops, label="Operation Count")
+    plt.plot(edges_list, acs, label="Access Count")
+    plt.xlabel(r"edges")
+    plt.legend()
+    plt.title(r"Running time as #edges varies")
+    plt.show()
+
+    plt.plot(edges_list, err, label="Error Ratio")
+    plt.xlabel(r"edges")
+    plt.title(r"Error ratio as #edges varies")
+    plt.legend()
+    """
 
     """
     cs = []
@@ -53,10 +96,13 @@ if __name__ == "__main__":
     print(eps, cs)
     """
 
+    """
+    # Make graph for finding optimal $c$:
+
     ops_data = []
     acs_data = []
     err_data = []
-    eps_list = [0.1*i for i in range(2, 10)]
+    eps_list = [0.1*i for i in range(1, 10)]
     c_list = [0.01*2**i for i in range(11)]
     for c in c_list:
         eps = 0.2
@@ -81,6 +127,40 @@ if __name__ == "__main__":
     plt.plot(c_list, err, label="Error Ratio")
     plt.xlabel(r"$c$")
     plt.legend()
+    """
+
+    
+    # Make graph for finding optimal epsilon
+    ops_data = []
+    acs_data = []
+    err_data = []
+    eps_list = [0.04861111*i for i in range(2, 20)]
+    for eps in eps_list:
+        c = 1
+        ops, acs, err, opt_err = test(graph, eps, c)
+        ops_data.append(ops)
+        acs_data.append(acs)
+        err_data.append(err / opt_err)
+        print("(Graph Length, epsilon, c) =", len(graph), eps, c)
+        print("(Operations, Graph accesses) =", ops, acs)
+        print("(Clustering error, Optimal error, ratio) =", err, opt_err, err / opt_err)
+
+
+    ops = np.array(ops_data)
+    acs = np.array(acs_data)
+    err = np.array(err_data)
+    plt.plot(eps_list, ops, label="Operation Count")
+    plt.plot(eps_list, acs, label="Access Count")
+    plt.xlabel(r"$\varepsilon$")
+    plt.legend()
+    plt.title(r"Running time as $\varepsilon$ varies")
+    plt.show()
+
+    plt.plot(eps_list, err, label="Error Ratio")
+    plt.xlabel(r"$\varepsilon$")
+    plt.title(r"Error ratio as $\varepsilon$ varies")
+    plt.legend()
+    
 
     """
     x, y = np.meshgrid(eps_list, c_list)

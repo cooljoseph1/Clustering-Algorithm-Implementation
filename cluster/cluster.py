@@ -89,7 +89,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
     # (iv)
     Sample = []
     for v in G.vertices:
-        operation_counter.add(8)
+        operation_counter.add(8, tag="build_verticies")
         if deg[v] > 0 and random.random() < c * log(n) / deg[v]:
             Sample.append(v)
     N_plus = {v: G+[v] for v in Sample}
@@ -98,51 +98,47 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
 
     # (v)
     def low(v, e): # eps low?
-        operation_counter.add(6 * len(N_plus[v]))
+        operation_counter.add(6 * len(N_plus[v]), tag="low")
         return set(filter(lambda u: deg[u] <= (1+e)*deg[v], N_plus[v]))
 
     def light_tester(v): # eps-delta light?
-        operation_counter.add(8)
-        result = len(low(v, eps)) < (1 - eps) * deg[v]
-        if result:
-            operation_counter.add(1, tag="Light tester removed candidate!")
-        return result
+        operation_counter.add(8, tag="light_tester")
+        return len(low(v, eps)) < (1 - eps) * deg[v]
 
     def isolated_tester(u, v, low_epsP):
         # u is in low_epsP = low(v, epsP)
-        operation_counter.add(6)
+        operation_counter.add(6, tag="isolated_tester")
         if deg[u] < (1 - 2*eps) * deg[v]:
             return True
-        operation_counter.add_set_intersection(low_epsP, N_sample[u])
-        operation_counter.add(5)
+        operation_counter.add_set_intersection(low_epsP, N_sample[u], tag="isolated_tester")
+        operation_counter.add(5, tag="isolated_tester")
         if len(low_epsP & N_sample[u]) < (1 - deltaP) * t:
             return True
         return False
 
     def sparse_tester(v):
-        operation_counter.add(3)
+        operation_counter.add(3, tag="sparse_tester")
         low_epsP = low(v, epsP)
-        operation_counter.add(6 * len(low_epsP))
+        operation_counter.add(6 * len(low_epsP), tag="sparse_tester")
         I = set(filter(lambda u: isolated_tester(u, v, low_epsP), low_epsP))
-        operation_counter.add(5)
+        operation_counter.add(5, tag="sparse_tester")
         if len(I) >= 2*eps*deg[v]:
-            operation_counter.add(1, tag="Sparse tester removed candidate!")
             return True
         return False
 
     def C_filter(u, v, low_epsP):
         # u is in low_epsP = low(v, epsP)
-        operation_counter.add(8)
+        operation_counter.add(8, tag="C_filter")
         if deg[u] > (1 + 2*epsP + 2 * deltaP) * deg[v]:
             return False
-        operation_counter.add(15)
-        operation_counter.add_set_intersection(N_sample[u], low_epsP)
+        operation_counter.add(15, tag="C_filter")
+        operation_counter.add_set_intersection(N_sample[u], low_epsP, tag="C_filter")
         if deg[u] > 0 and len(N_sample[u] & low_epsP) < (1 - 6*epsP - 6 * deltaP - eps) * t * deg[v]/deg[u]:
             return False
         return True
 
     def C_tilde(v, low_epsP):
-        operation_counter.add(1 + 6 * len(low_epsP))
+        operation_counter.add(1 + 6 * len(low_epsP), tag="C_tilde")
         return {v} | set(filter(lambda u: C_filter(u, v, low_epsP), low_epsP))
 
     # Build up dense D
@@ -166,7 +162,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
         Cv = Node(C_tilde(v, low_epsP))
         candidate_sets.append(Cv)
         for u in Cv:
-            operation_counter.add(2)
+            operation_counter.add(2, tag="Double nested")
             candidates[u].append(Cv)
     operation_counter.add(len(candidates))
     candidates = {key: value for key, value in candidates.items() if value != []}
@@ -183,7 +179,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
         for v in Cv:
             candidates.pop(v, None)
 
-        operation_counter.add(4)
+        operation_counter.add(4, tag="remove_candidates")
         candidate_sets.remove(Cv)
 
     # (vi)
@@ -192,12 +188,12 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
     operation_counter.add(len(G.vertices))
     labels = {v: -1 for v in G.vertices}
     for i, clique in enumerate(cliques):
-        operation_counter.add(len(clique))
+        operation_counter.add(len(clique), tag="build_cliques")
         for v in clique:
             labels[v] = i
     clusters = {}
     for v, l in labels.items():
-        operation_counter.add(2)
+        operation_counter.add(2, tag="make_labels")
         if l in clusters:
             clusters[l] |= {v}
         else:
