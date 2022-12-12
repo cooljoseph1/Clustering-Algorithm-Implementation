@@ -71,6 +71,7 @@ def Cluster(G, eps=0.24, c=0.1):
     D = set(Sample)
     for v in Sample:
         if len(low(v, eps)) < (1 - eps) * deg[v]: # light tester
+            D -= {v}
             continue
 
         low_epsP = low(v, epsP)
