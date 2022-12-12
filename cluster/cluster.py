@@ -27,7 +27,7 @@ def Cluster(G, eps=0.24, c=0.1):
         if len(G+[v]) == 0:
             N_sample[v] = set()
             continue
-        N_sample[v] = set(random.choices(list(G+[v]), k=t))
+        N_sample[v] = set(random.choices(G+[v], k=t))
 
     # (iv)
     Sample = []
@@ -71,7 +71,7 @@ def Cluster(G, eps=0.24, c=0.1):
     D = set(Sample)
     for v in Sample:
         if len(low(v, eps)) < (1 - eps) * deg[v]: # light tester
-            D -= {v}
+            D.discard(v)
             continue
 
         low_epsP = low(v, epsP)
