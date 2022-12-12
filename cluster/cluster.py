@@ -103,7 +103,10 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
 
     def light_tester(v): # eps-delta light?
         operation_counter.add(8)
-        return len(low(v, eps)) < (1 - eps) * deg[v]
+        result = len(low(v, eps)) < (1 - eps) * deg[v]
+        if result:
+            operation_counter.add(1, tag="Light tester removed candidate!")
+        return result
 
     def isolated_tester(u, v, low_epsP):
         # u is in low_epsP = low(v, epsP)
@@ -123,6 +126,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
         I = set(filter(lambda u: isolated_tester(u, v, low_epsP), low_epsP))
         operation_counter.add(5)
         if len(I) >= 2*eps*deg[v]:
+            operation_counter.add(1, tag="Sparse tester removed candidate!")
             return True
         return False
 
@@ -145,7 +149,8 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
     if verbose > 0:
         print("Building D...")
     operation_counter.add(4 * len(Sample))
-    D = [v for v in Sample if not light_tester(v) and not sparse_tester(v)]
+    print("Sample length is", len(Sample))
+    D = [v for v in Sample if (not light_tester(v)) & (not sparse_tester(v))]
 
     # Build candidate sets
     if verbose > 0:
