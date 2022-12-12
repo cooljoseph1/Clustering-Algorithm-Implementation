@@ -170,7 +170,7 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
     cliques = []
     if verbose > 0:
         print("Building cliques...")
-    print("Candidate length is", len(candidates))
+        print("Candidate length is", len(candidates))
     while len(candidates) > 0:
         u = next(iter(candidates))
         Cv = max(candidates[u], key=len)

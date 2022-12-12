@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Installing Python packages..."
+pip install -r requirements.txt
+
 mkdir -p data
 
 echo "Downloading words..."
