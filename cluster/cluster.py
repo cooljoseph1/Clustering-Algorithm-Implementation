@@ -40,18 +40,25 @@ def Cluster(G, eps=0.24, c=0.1):
     def low(v, e): # eps low?
         return set(filter(lambda u: deg[u] <= (1+e)*deg[v], N_plus[v]))
 
-    def light(v, e, d): # eps-delta light?
-        return len(low(v, e)) < (1 - d) * deg[v]
+    def light_tester(v): # eps-delta light?
+        return len(low(v, eps)) < (1 - eps) * deg[v]
 
     # neighbors isn't defined, but I don't think isolated is used anywhere...
     def isolated(v, e=eps):
         return filter(lambda u: len(low(v, e) - neighbors(u)) >= e * deg[v], N_plus[v])
 
-    def sparse_tester(u, v, low_epsP):
+    def isolated_tester(u, v, low_epsP):
         # u is in low_epsP = low(v, epsP)
         if deg[u] < (1 - 2*eps) * deg[v]:
             return True
         if len(low_epsP & N_sample[u]) < (1 - deltaP) * t:
+            return True
+        return False
+
+    def sparse_tester(v):
+        low_epsP = low(v, epsP)
+        I = set(filter(lambda u: isolated_tester(u, v, low_epsP), low_epsP))
+        if len(I) >= 2*eps*deg[v]:
             return True
         return False
 
@@ -70,13 +77,8 @@ def Cluster(G, eps=0.24, c=0.1):
     print("Building D...")
     D = set(Sample)
     for v in Sample:
-        if len(low(v, eps)) < (1 - eps) * deg[v]: # light tester
-            D.discard(v)
-            continue
-
-        low_epsP = low(v, epsP)
-        S = set(filter(lambda u: sparse_tester(u, v, low_epsP), low_epsP))
-        D -= S
+        if light_tester(v) or sparse_tester(v):
+            D.remove(v)
 
     # Build candidate sets
     print("Building candidate sets...")
