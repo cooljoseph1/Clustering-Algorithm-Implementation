@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # Make graph for finding optimal epsilon
     err_data = []
-    eps_list = [0.126*i for i in range(3, 7)]
+    eps_list = [0.126*i for i in range(2, 7)]
     c_list = [0.01*2**i for i in range(1, 7)]
     for eps in eps_list:
         c = 2

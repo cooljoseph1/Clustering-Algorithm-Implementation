@@ -103,7 +103,7 @@ $c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies
 $c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies.
 :----:|:----:
 ![[laminar_error_as_epsilon_varies_word_vector.png]] | ![[laminar_error_as_c_varies_word_vector.png]]
-When $\varepsilon$ is very small there are no candidates, but otherwise we see a linear increase in laminar error as $c$ increases, and approximately sublinear for $\varepsilon$. From our earlier analysis, for graphs of this size we want $\varepsilon\approx 0.3$ and $c\approx 2$, which would give the average vertex at most ten potential clusters, around $1\%$ of the total number of clusters. This is pretty good. It would be interesting for a future paper to explore a recursive strategy using these candidate clusters, instead of just assigning vertices with a loop through the largest candidates.
+When $\varepsilon$ is very small there are no candidates, but otherwise we see a linear increase in laminar error as $c$ increases, and approximately sublinear for $\varepsilon$. From our earlier analysis, for graphs of this size we want $\varepsilon\approx 0.3$ and $c\approx 2$, which would give the average vertex at most ten potential clusters, around $1\%$ of the total number of clusters. This is pretty good. It would be interesting for a future paper to explore a recursive strategy using these candidate clusters, instead of just assigning vertices through a loop of the largest candidates.
 
 ## Competitiveness
 Just how competitive is the algorithm Assadi and Wang develop? In this section, we demonstrate that it typically finds solutions that are less than three times worse than the optimum. This is a similar ratio of competitiveness to top algorithms like
