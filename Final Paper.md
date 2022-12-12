@@ -4,6 +4,8 @@ author: James Camacho and Joseph Camacho
 date: December 12, 2022
 geometry: margin=1in
 ---
+# Implementation of Sublinear Clustering Algorithm (Rough Draft)
+## By James Camacho and Joseph Camacho
 
 ### Overview
 We implement the algorithm ["Sublinear Time and Space Algorithms for Correlation Clustering via Sparse-Dense Decompositions"](https://doi.org/10.48550/arxiv.2109.14528) by Sepehr Assadi and Chen Wang. This clusters data in a (+/-)-labeled graph, where pluses mean two vertices are correlated and minuses mean anticorrelation. For example, a graph of all English words could have pluses between synonyms and minuses between antonyms. In other datasets, such as document clustering, these graphs can be incredibly large and dense, leading to a superlinear number of edges compared to the vertices. Even a single pass through the edges can be infeasible. This algorithm presents an approximation scheme that is $\smash{\tilde{O}(n)}$ in the number of vertices, often sublinear in the size of the dataset.
@@ -105,10 +107,8 @@ $c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies
 ![[laminar_error_as_epsilon_varies_word_vector.png]] | ![[laminar_error_as_c_varies_word_vector.png]]
 When $\varepsilon$ is very small there are no candidates, but otherwise we see a linear increase in laminar error as $c$ increases, and approximately sublinear for $\varepsilon$. From our earlier analysis, for graphs of this size we want $\varepsilon\approx 0.3$ and $c\approx 2$, which would give the average vertex at most ten potential clusters, around $1\%$ of the total number of clusters. This is pretty good. It would be interesting for a future paper to explore a recursive strategy using these candidate clusters, instead of just assigning vertices through a loop of the largest candidates.
 
-## Competitiveness
-Just how competitive is the algorithm Assadi and Wang develop? In this section, we demonstrate that it typically finds solutions that are less than three times worse than the optimum. This is a similar ratio of competitiveness to top algorithms like
-
 ## Conclusion
+In this paper, we implemented Sepehr Assadi and Chen Wang's algorithm for correlation clustering and empirically showed that their theoretical results held true.
 
 ## References
  ["Sublinear Time and Space Algorithms for Correlation Clustering via Sparse-Dense Decompositions"](https://doi.org/10.48550/arxiv.2109.14528)
