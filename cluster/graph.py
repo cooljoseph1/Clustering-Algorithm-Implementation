@@ -97,6 +97,8 @@ class RandomGraph(Graph):
             v1, v2 = random.choice(self.vertices), random.choice(self.vertices)
             if v1 == v2:
                 continue
+            if (v1, v2) in added_edges or (v2, v1) in added_edges:
+                continue
             added_edges.add((v1, v2))
             correlation = "+" if (self.cluster_map[v1] == self.cluster_map[v2]) ^ (random.random() < prob_flip) else "-"
             if correlation == "+":
