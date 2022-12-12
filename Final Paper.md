@@ -41,15 +41,15 @@ For both datasets running time improved as $\varepsilon$ increased, as fewer edg
 ![[opposite_trends.png]]
 This difference likely arises as there are only ~8,000 antonyms compared to ~200,000 synonyms in the thesaurus. Putting all words into one cluster is guaranteed to have very few errors, while separating into multiple clusters risks synonyms being in different clusters.
 
-For the random dataset, we see this improvement in error ratio even as we change the fraction of edges' correlations that are flipped, how many clusters there are, and the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even the sparser random datasets have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
+For the random dataset, we see this rapid improvement at $\varepsilon=0.25$ even as we change the fraction of edge correlations that are flipped, how many clusters there are, or the size of the graph. For example, the below graphs show the algorithm run with $\varepsilon < 0.25$ and $\varepsilon > 0.25$ and a varying number of edges. Even with very few edges we have over four times the error when $\varepsilon < 0.25$, and as it gets denser this increases to over twenty times!
 
 $\varepsilon < 0.25$ | $\varepsilon > 0.25$
 :----:|:----:
 ![[error_ratio_as_edges_varies_low_epsilon.png]] | ![[error_ratio_as_edges_varies_high_epsilon.png]]
 
-To get a denser model based on real-world data, we create a new dataset using word vectors. It is well known their dot products are a measure of correlation, with very positive dot products being highly correlated while very negative dot products are anticorrelated, so we assign plus-edges to the top percentiles of these dot products, and minus-edges to the bottom. Changing this fraction allows for sparser or denser graphs.
+To get a denser model based on real-world data, we create a new dataset using word vectors. It is well known their dot products are a measure of correlation, with very positive dot products being highly correlated while negative dot products are anticorrelated, so we assign plus-edges to the top percentiles of these dot products, and minus-edges to the bottom. Changing this fraction allows for sparser or denser graphs.
 
-For all levels of sparsity, we an error ratio trend similar to that of the random graphs:
+For all levels of sparsity, we see an error trend similar to that of the random graphs:
 ![[percentile_change.png]]
 For both the random graph and the graph based on word vectors, the best clustering occurs when $\varepsilon$ is slightly larger than $0.25$.
 
@@ -90,6 +90,20 @@ Random | Word Vector
 
 I think this is where we need the filter part! We have sublinear time for low $\varepsilon$. The following graph is for where $\varepsilon = 0.01$:
 ![[error_ratio_as_edges_varies_low_epsilon.png]]
+
+## Laminar Candidate Clusters
+Assadi and Wang make the claim that the candidate clusters have a high probability of forming a laminar set family. Every pair of candidates should either be disjoint, or one is a subset of the other. Suppose two candidates do not satisfy this laminar property. Their symmetric difference is all elements contained in exactly one subset but not the other, and so the sum of the symmetric differences is a measure of how far off from laminar the candidates are. Normalizing by number of vertices and number of candidate sets gives the following graphs:
+
+**Random graph,** $V=10^4, E=10^6, \text{clusters}=10, \text{flip}=10\%$.
+$c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies.
+:----:|:----:
+![[laminar_error_as_epsilon_varies.png]] | ![[laminar_error_as_c_varies.png]]
+
+**Word vector graph,** $V=10^4, E=5\%$.
+$c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies.
+:----:|:----:
+![[laminar_error_as_epsilon_varies_word_vector.png]] | ![[laminar_error_as_c_varies_word_vector.png]]
+When $\varepsilon$ is very small there are no candidates, but otherwise we see a linear increase in laminar error as $c$ increases, and approximately sublinear for $\varepsilon$. From our earlier analysis, for graphs of this size we want $\varepsilon\approx 0.3$ and $c\approx 2$, which would give the average vertex at most ten potential clusters, around $1\%$ of the total number of clusters. This is pretty good. It would be interesting for a future paper to explore a recursive strategy using these candidate clusters, instead of just assigning vertices with a loop through the largest candidates.
 
 ## Competitiveness
 Just how competitive is the algorithm Assadi and Wang develop? In this section, we demonstrate that it typically finds solutions that are less than three times worse than the optimum. This is a similar ratio of competitiveness to top algorithms like

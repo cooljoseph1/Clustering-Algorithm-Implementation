@@ -55,7 +55,10 @@ class LinkedList(object):
     def __repr__(self):
         return str([node.data for node in self])
 
-def cluster(G, eps=0.2, c=0.1, verbose=0):
+    def __len__(self):
+        return len(list(iter(self)))
+
+def cluster(G, eps=0.2, c=0.1, verbose=0, check_laminar=False):
     """
     G - graph to cluster.
     eps - lower = more accurate clusters.
@@ -166,6 +169,15 @@ def cluster(G, eps=0.2, c=0.1, verbose=0):
             candidates[u].append(Cv)
     operation_counter.add(len(candidates))
     candidates = {key: value for key, value in candidates.items() if value != []}
+
+    if check_laminar: # Incredibly slow, so only do it if we're testing this.
+        for a in candidate_sets:
+            for b in candidate_sets:
+                if a == b:
+                    continue
+                operation_counter.add(len(a.data ^ b.data), tag="Symmetric difference")
+        if "Symmetric difference" in operation_counter.tagged_counts:
+            operation_counter.tagged_counts["Symmetric difference"] = operation_counter.tagged_counts.get("Symmetric difference", 0) / len(candidate_sets)
 
     # Build cliques
     cliques = []
