@@ -35,4 +35,24 @@ Assadi and Wang's main result is that their algorithm results in a constant-appr
 Luckily, in practice $\varepsilon$ can be raised to much larger values while maintaining sublinear time in edges, vastly improving the approximation of the clustering. In order to test this, we did the following:
 
 
-### Operation Count
+## Choice of $c$
+In their paper, Assadi and Wang state that "there is an absolute constant $c > 0$" for which their algorithm works, but they never specify exactly what $c$ has to be. In fact, they only imply what restrictions $c$ might have by constraints on other variables. These constraints imply that $c$ to be at least $\varepsilon^2$. Since $\varepsilon^2$ is rather small, this means that $c$ can be just about anything.
+
+Nevertheless, it's not very *useful* to make $c$ as small as possible. While lowering $c$ speeds up the algorithm by requiring fewer graph accesses, it also lowers its performance because the algorithm has less information to make use of. In this section, we explore the tradeoffs of what  $c$ should be, and demonstrate that $c \approx 2$ yields good results with competitive results.
+
+TODO: The choice of $c \approx 2$ was arbitrary and a stand-in for what the correct value should be. Fix this!!
+
+TODO: Actually make this section
+
+## Sublinear Time
+In this section, we use the previously chosen $\varepsilon$ and $c$ to analyze the speed of the algorithm and demonstrate that it is sublinear in time (even without the gurantees of the theoretical results).
+
+TODO: Make this section
+
+## Competitiveness
+Just how competitive is the algorithm Assadi and Wang develop? In this section, we demonstrate that it typically finds solutions that are less than three times worse than the optimum. This is a similar ratio of competitiveness to top algorithms like
+
+## Conclusion
+
+## References
+ ["Sublinear Time and Space Algorithms for Correlation Clustering via Sparse-Dense Decompositions"](https://doi.org/10.48550/arxiv.2109.14528)
