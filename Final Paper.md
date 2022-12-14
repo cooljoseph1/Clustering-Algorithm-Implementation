@@ -65,7 +65,7 @@ In conclusion, real world data often looks similar to the random dataset we buil
 ## Choice of $c$
 In their paper, Assadi and Wang state that "there is an absolute constant $c > 0$" for which their algorithm works, but they never specify exactly what $c$ has to be. In fact, they only imply what restrictions $c$ might have by constraints on other variables. These constraints imply that $c$ to be on the order of at least $\varepsilon^2$. Since $\varepsilon^2$ is rather small, this means that $c$ can be just about anything.
 
-Nevertheless, setting $c = \varepsilon^2$ is hardly useful. While lowering $c$ speeds up the algorithm by requiring fewer graph accesses, it also lowers its performance because the algorithm has less information to make use of. In this section, we explore the tradeoffs of what  $c$ should be, and demonstrate that $c \approx 2$ yields good results with competitive results.
+Nevertheless, setting $c = \varepsilon^2$ is hardly useful. While lowering $c$ speeds up the algorithm by requiring fewer graph accesses, it also lowers its performance because the algorithm has less information to make use of. In this section, we explore the tradeoffs of what $c$ should be, and demonstrate that $c \approx 2$ yields good results with competitive results.
 
 In the previous section, we showed that a good choice of $\varepsilon$ is not much more than $0.25$. For this section, we set $\varepsilon = 0.3$.
 
@@ -97,11 +97,13 @@ I think this is where we need the filter part! We have sublinear time for low $\
 Assadi and Wang make the claim that the candidate clusters have a high probability of forming a laminar set family. Every pair of candidates should either be disjoint, or one is a subset of the other. Suppose two candidates do not satisfy this laminar property. Their symmetric difference is all elements contained in exactly one subset but not the other, and so the sum of the symmetric differences is a measure of how far off from laminar the candidates are. Normalizing by number of vertices and number of candidate sets gives the following graphs:
 
 **Random graph,** $V=10^4, E=10^6, \text{clusters}=10, \text{flip}=10\%$.
+
 $c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies.
 :----:|:----:
 ![[laminar_error_as_epsilon_varies.png]] | ![[laminar_error_as_c_varies.png]]
 
 **Word vector graph,** $V=10^4, E=5\%$.
+
 $c = 2$ is fixed, $\varepsilon$ varies. | $\varepsilon=0.3$ is fixed, $c$ varies.
 :----:|:----:
 ![[laminar_error_as_epsilon_varies_word_vector.png]] | ![[laminar_error_as_c_varies_word_vector.png]]
