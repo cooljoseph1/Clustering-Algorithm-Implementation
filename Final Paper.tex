@@ -97,25 +97,7 @@ Unfortunately, their theoretical bounds only hold when $\varepsilon < \frac{1}{3
 \hypertarget{overview}{%
   \subsubsection{Overview}\label{overview}}
 
-We implement Algorithm 1 in
-\href{https://doi.org/10.48550/arxiv.2109.14528}{"Sublinear Time and
-  Space Algorithms for Correlation Clustering via Sparse-Dense
-  Decompositions"} by Sepehr Assadi and Chen Wang. This algorithm implements
-correlation clustering, the goal of which is to cluster nodes in a (+/-)-labeled
-graph such that the number of +'s between elements of different clusters and
--'s between elements of the same cluster is minimzed. For example, a graph of
-all English words could have pluses between synonyms and minuses between
-antonyms, and the goal might be to form clusters of semantically related words.
-In other datasets, such as document clustering, these graphs can be
-incredibly large and dense, leading to a superlinear number of edges
-compared to the vertices. On such graphs, even a single pass through the edges can be
-infeasible. Assadi and Wang's paper presents an approximation scheme
-that uses only {\(\tilde{O}(n)\)} vertices and {\(\tilde{O}(n)\)} edges
-(where $\tilde{O}(\cdot)$ is $O(\cdot)$ ignoring logarithmic factors),
-which is often sublinear in the size of the input.
-
-It requires access to the plus-labeled edges in an adjacency list, and
-works as follows:
+Intuitively, minus-edges are not as relevant as plus-edges, because they only increase the cost if a cluster has formed, but that will only occur when there are already many plus-edges. The algorithm then only considers the plus-edges. From now on, assume all edges and vertices are from the plus-subgraph. The main steps for the algorithm are as follows:
 
 \begin{enumerate}
   \tightlist
@@ -466,10 +448,7 @@ the total number of clusters, narrowing down potential clusters tremendously. In
 \hypertarget{conclusion}{%
   \subsection{Conclusion}\label{conclusion}}
 
-In this paper, we implemented Sepehr Assadi and Chen
-
-Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. For this $\varepsilon$, we found that setting $c = 2$ gave a good tradeoff between accuracy and run time. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be-discovered algorithm with near optimal cost and sublinear running time in the number of edges.
-Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. For this $\varepsilon$, we found that setting $c = 2$ gave a good tradeoff between accuracy and run time. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be-sdiscovered algorithm with near optimal cost and sublinear running time in the number of edges.
+In this paper, we implemented Sepehr Assadi and Chen Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. For this $\varepsilon$, we found that setting $c = 2$ gave a good tradeoff between accuracy and run time. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be-discovered algorithm with near optimal cost and sublinear running time in the number of edges.
 \nocite{*}
 \bibliographystyle{abbrvnat}
 \bibliography{biblio}
