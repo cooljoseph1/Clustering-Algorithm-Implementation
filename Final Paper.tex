@@ -89,25 +89,16 @@ Draft)}\label{implementation-of-sublinear-clustering-algorithm-rough-draft}}
 Camacho}\label{by-james-camacho-and-joseph-camacho}}
 
 \hypertarget{overview}{%
+\subsubsection{Introduction}\label{overview}}
+
+A (+/-)-graph contains plus-edges and minus-edges, corresponding to positive or negative correlation between two vertices. For example, in a graph of a thesaurus there would be plus-edges between synonyms and minus-edges between antonyms. The clustering problem involves assigning labels to each vertex, trying to assign more highly correlated vertices with the same label. More precisely, a cost function is introduced, with one unit of cost for every pair of correlated vertices assigned different labels and anticorrelated vertices with the same label. In very large, very dense graphs, simply reading every edge can take a very long time, $O(n^2)$ in the number of vertices. We cannot do better than an $\Omega(n)$ algorithm, as every vertex must be assigned a label. This clustering problem is NP, but polynomial approximation schemes are known to exist. In this paper we implement one such approximation scheme by \href{https://doi.org/10.48550/arxiv.2109.14528}{Assadi and Wang} that runs in $\tilde{O}(n)$ time. The running time is $O(n\log^2 n\varepsilon^{-2})$ for some input $\varepsilon$, and it yields an $O(\varepsilon^{-2})$-factor approximation (in terms of cost).
+
+Unfortunately, their theoretical bounds only hold when $\varepsilon < \frac{1}{360}$, which means the algorithm could be off by a factor of $10^5$, not a very practical result. We explore empirically what happens for larger $\varepsilon$, and find more efficient and accurate clustering for $\varepsilon > \frac14$. Our Python implementation can be found on \href{https://github.com/cooljoseph1/Clustering-Algorithm-Implementation}{GitHub}.
+
+\hypertarget{overview}{%
 \subsubsection{Overview}\label{overview}}
 
-We implement the algorithm
-\href{https://doi.org/10.48550/arxiv.2109.14528}{"Sublinear Time and
-Space Algorithms for Correlation Clustering via Sparse-Dense
-Decompositions"} by Sepehr Assadi and Chen Wang. This clusters data in a
-(+/-)-labeled graph, where pluses mean two vertices are correlated and
-minuses mean anticorrelation. For example, a graph of all English words
-could have pluses between synonyms and minuses between antonyms. In
-other datasets, such as document clustering, these graphs can be
-incredibly large and dense, leading to a superlinear number of edges
-compared to the vertices. Even a single pass through the edges can be
-infeasible. This algorithm presents an approximation scheme that is
-{\(\overset{\sim}{O}(n)\)} in the number of vertices, often sublinear in
-the size of the dataset.
-
-It requires access to the plus-labeled edges in an adjacency list, and
-works as follows:
-
+Intuitively, minus-edges are not as relevant as plus-edges, because they only increase the cost if a cluster has formed, but that will only occur when there are already many plus-edges. The algorithm then only considers the plus-edges. From now on, assume all edges and vertices are from the plus-subgraph. The main steps for the algorithm are as follows:
 \begin{enumerate}
 \tightlist
 \item
@@ -124,25 +115,6 @@ works as follows:
 \item
   Find approximate clusters from the candidates.
 \end{enumerate}
-
-If the constants are chosen right, there should be a high probability
-that the candidate clusters in step four form a laminar group, i.e. each
-candidate is either disjoint or a subset to any other candidate. Then,
-step five consists of assigning each vertex to the largest candidate
-it\textquotesingle s contained in. If it isn\textquotesingle t contained
-in any candidate clusters, it is assumed to be pretty isolated and
-assigned to its own cluster.
-
-We can define a cost for the clustering-\/-\/-each time two vertices are
-put in different clusters but have a plus-edge between them, the cost is
-increased by one. Similarly if two vertices share a minus-edge but get
-put in the same cluster, the cost increases by one. It turns out the
-minus-edges are not too relevant, as two vertices with a minus-edge
-should only be clustered together if they share a lot of neighbors in
-the plus-subgraph, in which case the cost would increase whether or not
-they get clustered together. So, by only using the plus-subgraph, it is
-possible to determine good clusters with an {\(O(1)\)} approximation to
-the optimum.
 
 The accuracy of the algorithm depends on the details. How many edges do
 you sample from each vertex? What is the probability you sample all the
@@ -171,11 +143,7 @@ sparse vertices are filtered out. Call the \emph{low} neighbors of
 {\[\deg(u) < (1 + 7\varepsilon)\deg(v).\]}A low neighbor {\(u\)} is
 \emph{isolated} if
 {\[|\text{sampled\ neighbors}(u) \cap \text{low}(v)| < (1 - 4\varepsilon)t,\]}i.e.
-very few of its neighbors are also low neighbors of {\(v\)}. If a large
-fraction, at least {\(2\varepsilon\deg(v)\)}, of the low neighbors of
-{\(v\)} are isolated, then {\(v\)} is considered sparse.
-We\textquotesingle re left with only the densest vertices from our
-sample in step two.
+very few of its neighbors are also low neighbors of {\(v\)}. Note that when $\varepsilon > 0.25$, there are no isolated neighbors. When $\varepsilon < 0.25$, we call a vertex \emph{sparse} if at least {\(2\varepsilon\deg(v)\)} of its low neighbors are isolated. Any not-light and not-sparse vertex should be pretty dense.
 
 From here, we use some more magic numbers to build candidate clusters.
 For each dense vertex {\(v\)}, we build a candidate set, including a low
@@ -183,9 +151,11 @@ neighbor {\(u\)} if
 {\[1 + 22\varepsilon > \frac{\deg(u)}{\deg(v)} > \frac{(1 - 67\varepsilon)t}{|\text{sampled\ neighbors}(u) \cap \text{low}(v)|}.\]}Recall
 that there are {\(t\)} sampled neighbors of {\(u\)}, so the right
 inequality means that most neighbors of {\(u\)} are also low neighbors
-of {\(v\)}. In most of our analysis we have {\(\varepsilon > 1/67\)}, so
-this inequality doesn\textquotesingle t do much, but it will serve to
-increase accuracy as {\(\varepsilon\)} gets very small.
+of {\(v\)}. In our analysis we have {\(\varepsilon > 1/67\)}, so
+this inequality won't do anything, but it may serve to
+decrease runtime as {\(\varepsilon\)} gets very small.
+
+Assadi and Wang claim that, with high probability, these candidate clusters will form a \emph{laminar set family}, a group of sets where any two elements are either disjoint, or one is completely contained in the others. If that holds, then we can take the largest disjoint subsets as the clusters. Any vertices not contained in a subset are assigned as their own cluster.
 
 In this paper we explore more how the choice of {\(\varepsilon\)} and
 constant multiplier in {\(t = O(\varepsilon^{- 2}\log n)\)} affect the
@@ -193,7 +163,7 @@ operation count and accuracy of the algorithm. We answer questions like,
 exactly how close are the candidate clusters to a laminar set family?
 How many intersections can we expect? Do we \emph{really} need
 {\(\varepsilon < 1/360\)} in practice, or would larger values like
-{\(\varepsilon = 1/64\)}, {\(\varepsilon = 1/2\)} or
+{\(\varepsilon = 1/64\)}, {\(\varepsilon = 1/4\)} or
 {\(\varepsilon \approx 1\)} fare equally well? How do sparser or denser
 datasets change these results?
 
@@ -201,7 +171,7 @@ datasets change these results?
 \subsection{\texorpdfstring{Choice of
 {\(\varepsilon\)}}{Choice of \textbackslash varepsilon}}\label{choice-of-varepsilon}}
 
-Assadi and Wang\textquotesingle s main result is that their algorithm
+Assadi and Wang's main result is that their algorithm
 results in a constant-approximation of the optimal clustering in
 sublinear time. However, the quality of this constant depends very much
 on their choice of {\(\varepsilon\)}. In particular, they showed that
@@ -277,9 +247,9 @@ Likewise, the running time improves as {\(\varepsilon\)} increases:\\
 
 This suggests several things, most notably that filtering by isolated
 neighbors is actually detrimental to the performance of the algorithm!
-Although it\textquotesingle s theoretically necessary to do this
+Although it's theoretically necessary to do this
 filtering to gurantee an {\(O(1)\)} approximation (as the thesaurus
-dataset somewhat shows), in practice it\textquotesingle s not only
+dataset somewhat shows), in practice it's not only
 faster to not do so, but also more accurate.
 
 In conclusion, real world data often looks similar to the random dataset
@@ -334,15 +304,15 @@ setting {\(c \approx 2\)}.
 \hypertarget{sublinear-time}{%
 \subsection{Sublinear Time}\label{sublinear-time}}
 
-It\textquotesingle s easy enough to theoretically show that the
+It's easy enough to theoretically show that the
 algorithm described above is sublinear in the number of edges no matter
 what the specific choices of {\(\varepsilon\)} and {\(c\)} are. (Indeed,
-Assadi and Wang\textquotesingle s paper is important not because their
+Assadi and Wang's paper is important not because their
 algorithm is sublinear in time, but because it has {\(O(1)\)}
 competitiveness.) In this section, we demonstrate this by analyzing the
 runtime for fixed {\(\varepsilon = 0.3\)} and {\(c = 2\)}.
 
-TODO: Uh oh James! This doesn\textquotesingle t actually work! The
+TODO: Uh oh James! This doesn't actually work! The
 graphs appear to have linear time!!!\\
 Random \textbar{} Word Vector\\
 :-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
@@ -399,7 +369,7 @@ loop of the largest candidates.
 \subsection{Conclusion}\label{conclusion}}
 
 In this paper, we implemented Sepehr Assadi and Chen
-Wang\textquotesingle s algorithm for correlation clustering and
+Wang's algorithm for correlation clustering and
 empirically showed that their theoretical results held true.
 
 \hypertarget{references}{%
