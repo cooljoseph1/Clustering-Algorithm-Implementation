@@ -4,3 +4,5 @@ Final Paper.pdf
 *.npy
 *.vec
 *.gz
+*.aux
+*.log
