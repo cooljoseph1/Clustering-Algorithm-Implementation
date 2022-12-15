@@ -108,26 +108,6 @@ Intuitively, minus-edges are not as relevant as plus-edges, because they only in
         Find approximate clusters from the candidates.
 \end{enumerate}
 
-If the constants are chosen right, there should be a high probability
-that the candidate clusters in step four form what Assadi and Wang call
-a \emph{laminar collection}, a collection of sets for which any two sets
-are either disjoint or one is a superset of the other. Then,
-step five consists of assigning each vertex to the largest candidate
-it's contained in. If it isn't contained
-in any candidate clusters, it is assumed to be pretty isolated and
-assigned to its own cluster.
-
-We can define a cost for the clustering---each time two vertices are
-put in different clusters but have a plus-edge between them, the cost is
-increased by one. Similarly if two vertices share a minus-edge but get
-put in the same cluster, the cost increases by one. It turns out the
-minus-edges are not too relevant, as two vertices with a minus-edge
-should only be clustered together if they share a lot of neighbors in
-the plus-subgraph, in which case the cost would increase whether or not
-they get clustered together. So, by only using the plus-subgraph, it is
-possible to determine good clusters with an {\(O(1)\)} approximation to
-the optimum.
-
 The accuracy of the algorithm depends on the details. How many edges do
 you sample from each vertex? What is the probability you sample all the
 edges for a particular vertex? What bounds do you use to filter dense
@@ -173,7 +153,7 @@ or one is a subset of the other.
 If that holds, then we can take the largest disjoint subsets as the clusters.
 Any vertices not contained in a subset are assigned as their own cluster.
 
-Our Python implementation can be found on \href{https://github.com/cooljoseph1/Clustering-Algorithm-Implementation}{GitHub}. To measure operations, we create a counter. Every time a function is called, we add the number of operations that call takes within a constant factor. For example, a set `x AND y` operation is known to take $O(\min(x, y))$ time, so we would add $\min(x, y)$ to the counter. To measure error ratios, we find an upper bound for the cost when generating the graph and divide the algorithm's output with this upper bound. This allows larger graphs to be comparable to smaller ones. In the case of the thesaurus, where we do not generate the graph, we simply give the cost. Finally, to determine how far off from laminar the candidate clusters are, we add the sizes of the symmetric differences of every pair of vertices (`len(x XOR y)`), and normalize by dividing by total size and number of vertices.
+Our Python implementation can be found on \href{https://github.com/cooljoseph1/Clustering-Algorithm-Implementation}{GitHub}. To measure operations, we create a counter. Every time a function is called, we add the number of operations that call takes within a constant factor. For example, a set $x\text{ AND }y$ operation is known to take $O(\min(x, y))$ time, so we would add $\min(x, y)$ to the counter. To measure error ratios, we find an upper bound for the cost when generating the graph and divide the algorithm's output with this upper bound. This allows larger graphs to be comparable to smaller ones. In the case of the thesaurus, where we do not generate the graph, we simply give the cost. Finally, to determine how far off from laminar the candidate clusters are, we add the sizes of the symmetric differences of every pair of vertices ($|x\text{ XOR }y|$), and normalize by dividing by total size and number of vertices.
 
 In this paper we explore more how the choice of {\(\varepsilon\)} and
 constant multiplier in {\(t = O(\varepsilon^{- 2}\log n)\)} affect the
