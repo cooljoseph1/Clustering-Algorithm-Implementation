@@ -80,14 +80,14 @@
 \maketitle
 
 \hypertarget{introduction}{%
-  \subsubsection{Introduction}\label{introduction}}
+  \section{Introduction}\label{introduction}}
 
 A (+/-)-graph contains plus-edges and minus-edges, corresponding to positive or negative correlation between two vertices. For example, in a graph of a thesaurus there would be plus-edges between synonyms and minus-edges between antonyms. The clustering problem involves assigning labels to each vertex, trying to assign more highly correlated vertices with the same label. More precisely, a cost function is introduced, with one unit of cost for every pair of correlated vertices assigned different labels and anticorrelated vertices with the same label. In very large, very dense graphs, simply reading every edge can take a very long time, $O(n^2)$ in the number of vertices. We cannot do better than an $\Omega(n)$ algorithm, as every vertex must be assigned a label. This clustering problem is NP, but polynomial approximation schemes are known to exist. In this paper we implement one such approximation scheme by \href{https://doi.org/10.48550/arxiv.2109.14528}{Assadi and Wang} that runs in $\tilde{O}(n)$ time. The running time is $O(n\log^2 n\varepsilon^{-2})$ for some input $\varepsilon$, and it yields an $O(\varepsilon^{-2})$-factor approximation (in terms of cost).
 
 Unfortunately, their theoretical bounds only hold when $\varepsilon < \frac{1}{360}$, which means the algorithm could be off by a factor of $10^5$, not a very practical result. We explore empirically what happens for larger $\varepsilon$, and find more efficient and accurate clustering for $\varepsilon > \frac14$.
 
 \hypertarget{overview}{%
-  \subsubsection{Overview}\label{overview}}
+  \section{Overview}\label{overview}}
 
 We implement Algorithm 1 in
 \href{https://doi.org/10.48550/arxiv.2109.14528}{"Sublinear Time and
@@ -204,7 +204,7 @@ How many intersections can we expect? Do we \emph{really} need
 datasets change these results?
 
 \hypertarget{choice-of-varepsilon}{%
-  \subsection{\texorpdfstring{Choice of
+  \section{\texorpdfstring{Choice of
         {\(\varepsilon\)}}{Choice of \textbackslash varepsilon}}\label{choice-of-varepsilon}}
 
 Assadi and Wang's main result is that their algorithm
@@ -295,7 +295,7 @@ structure of the graph.
 \end{figure}
 
 \hypertarget{word-vector-dataset}{%
-  \subsection{Word Vector Dataset}\label{word-vector-dataset}}
+  \section{Word Vector Dataset}\label{word-vector-dataset}}
 
 
 To get a denser model based on real-world data, we create a new dataset
@@ -338,7 +338,7 @@ we built, and for these types of data, setting {\(\varepsilon\)} to be
 slightly more than {\(0.25\)} is a good choice.
 
 \hypertarget{choice-of-c}{%
-  \subsection{\texorpdfstring{Choice of
+  \section{\texorpdfstring{Choice of
         {\(c\)}}{Choice of c}}\label{choice-of-c}}
 
 In their paper, Assadi and Wang state that "there is an absolute
@@ -388,7 +388,7 @@ setting {\(c \approx 2\)}.
 \end{figure}
 
 \hypertarget{sublinear-time}{%
-  \subsection{Sublinear Time}\label{sublinear-time}}
+  \section{Sublinear Time}\label{sublinear-time}}
 
 In their paper, Assadi and Wang mathematically proved that their algorithm
 runs in sublinear time in the number of edges for small enough $\varepsilon$.
@@ -414,7 +414,7 @@ tell whether it truly is sublinear at this scale.
 \end{figure}
 
 \hypertarget{laminar-candidate-clusters}{%
-  \subsection{Laminar Candidate
+  \section{Laminar Candidate
     Clusters}\label{laminar-candidate-clusters}}
 
 Assadi and Wang make the claim that the candidate clusters have a high
@@ -456,7 +456,7 @@ the average vertex at most ten potential clusters, around {\(1\%\)} of
 the total number of clusters, narrowing down potential clusters tremendously. In our implementation we assigned vertices to one of these clusters arbitrarily, but it would be interesting for future work to create a better algorithm for assigning clusters in the final step.
 
 \hypertarget{conclusion}{%
-  \subsection{Conclusion}\label{conclusion}}
+  \section{Conclusion}\label{conclusion}}
 
 In this paper, we implemented Sepehr Assadi and Chen
 
