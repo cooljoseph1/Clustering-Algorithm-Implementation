@@ -196,7 +196,7 @@ increase accuracy as {\(\varepsilon\)} gets very small.
 
 Assadi and Wang claim that, with high probability, these candidate clusters will form a
 \emph{laminar set family}, a group of sets where any two elements are either disjoint,
-or one is completely contained in the others.
+or one is a subset of the other.
 If that holds, then we can take the largest disjoint subsets as the clusters.
 Any vertices not contained in a subset are assigned as their own cluster.
 
@@ -216,14 +216,8 @@ datasets change these results?
 
 Assadi and Wang's main result is that their algorithm
 results in a constant-approximation of the optimal clustering in
-sublinear time. However, the quality of this constant depends very much
-on their choice of {\(\varepsilon\)}. In particular, they showed that
-the constant is roughly proportional to {\(\varepsilon^{- 2}\)}. This
-makes restricting {\(\varepsilon\)} to less than {\(1/360\)} (as certain
-theoretical results of theirs require) suboptimal: If the optimal
-clustering of a graph has a single incorrect correllation, using their
-clustering algorithm with {\(\varepsilon = 1/361\)} could have on the
-order of over 100,000 incorrect edges. This is a terrible approximation!
+sublinear time (in the number of edges). However, the quality of this constant depends very much
+on their choice of {\(\varepsilon\)}, which as we showed above is around $10^5$ when $\varepsilon = 1/360$, the theoretical maximum that guarantees the algorithm works. However, the number of edges we randomly sample per vertex is also proportional to $\varepsilon^{-2}$, so until we have more than $\sim 10^{5}$ vertices and $\sim 10^{10}$ edges, the algorithm runs as slow as reading every single edge, and still isn't guaranteed to do better than a $10^5$ factor approximation. This is terrible!
 
 Luckily, in practice {\(\varepsilon\)} can be raised to much larger
 values while maintaining sublinear time in edges, vastly improving the
@@ -346,7 +340,7 @@ filtering to gurantee an {\(O(1)\)} approximation (as the thesaurus
 dataset somewhat shows), in practice it's not only
 faster to not do so, but also more accurate.
 
-In conclusion, real world data often looks similar to the random dataset
+In conclusion, dense graphs from real world data often look similar to the random dataset
 we built, and for these types of data, setting {\(\varepsilon\)} to be
 slightly more than {\(0.25\)} is a good choice.
 
@@ -371,19 +365,18 @@ good results with competitive results.
 
 In the previous section, we showed that a good choice of
   {\(\varepsilon\)} is not much more than {\(0.25\)}. For this section, we
-set {\(\varepsilon = 0.3\)}.
+set {\(\varepsilon = 0.3\)}. We find a steep decline in error until a steady increase after $c > 2$.
 
-Using both the random graph and the word vector graph, we can see that the optimal
-clustering occurs when $c \approx 2$.\\
 \begin{figure}[!htb]
-  \centering{
-\includegraphics[width=0.45\textwidth]{images/error_ratio_as_c_varies.png}
-\includegraphics[width=0.45\textwidth]{images/error_ratio_as_c_varies_word_vector.png}
-
-}
-  \caption{\label{fig:errors-as-c-varies}
-  In both the random graph (left) and word vector graph (right), the clustering is
-  optimal around $c = 2$.}
+	\begin{tabular}{cc}
+		Word Vector & Random\\
+		\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies_word_vector.png}
+		&
+		\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies.png}\\
+	\end{tabular}
+	\caption{\label{fig:error-ratio-c-varies}
+		In both the word vector graph (left) and random graph (right), the error
+		ratio has a sharp downturn followed by a very slow increase.}
 \end{figure}
 
 In both cases, the running time also scales linearly with {\(c\)}. A good trade off, then, between runtime and error ratio appears to be
@@ -391,10 +384,10 @@ setting {\(c \approx 2\)}.
 \begin{figure}[!htb]
   \centering{
 \begin{tabular}{cc}
-  Random & Word Vector\\
-  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies.png}
+  Word Vector & Random\\
+  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies_word_vector.png}
          &
-  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies_word_vector.png}\\
+  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies.png}\\
 \end{tabular}
 }
   \caption{\label{fig:running-time-c-varies}
@@ -436,40 +429,42 @@ candidates do not satisfy this laminar property. Their symmetric
 difference is all elements contained in exactly one subset but not the
 other, and so the sum of the symmetric differences is a measure of how
 far off from laminar the candidates are. Normalizing by number of
-vertices and number of candidate sets gives the following graphs:
+vertices and number of candidate sets gives the graphs in figures \ref{fig:laminar-error-random-graph} and \ref{fig:laminar-error-word-vector-graph}.
 
-\textbf{Random graph,}
-{\(V = 10^{4},E = 10^{6},\text{clusters} = 10,\text{flip} = 10\%\)}.\\
-{\(c = 2\)} is fixed, {\(\varepsilon\)} varies. \textbar{}
-{\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
-:-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
-\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies.png}
-\textbar{}
-\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies.png}
+\begin{figure}[!htb]
+	\begin{tabular}{cc}
+		{\(c = 2\)} is fixed, {\(\varepsilon\)} varies. & {\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
+		\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies.png}
+		&
+		\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies.png}\\
+	\end{tabular}
+	\caption{\label{fig:laminar-error-random-graph}
+		As we increase $\varepsilon$ (left) or $c$ (right), the laminar error increases for our random graph with $10^4$ vertices, $10^6$ edges, ten clusters, and $10\%$ edge flip probability.}
+\end{figure}
 
-\textbf{Word vector graph,} {\(V = 10^{4},E = 5\%\)}.\\
-{\(c = 2\)} is fixed, {\(\varepsilon\)} varies. \textbar{}
-{\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
-:-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
-\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies_word_vector.png}
-\textbar{}
-\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies_word_vector.png}\\
-When {\(\varepsilon\)} is very small there are no candidates, but
-otherwise we see a linear increase in laminar error as {\(c\)}
-increases, and approximately sublinear for {\(\varepsilon\)}. From our
+\begin{figure}[!htb]
+	\begin{tabular}{cc}
+		{\(c = 2\)} is fixed, {\(\varepsilon\)} varies. & {\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
+		\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies_word_vector.png}
+		&
+		\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies_word_vector.png}\\
+	\end{tabular}
+	\caption{\label{fig:laminar-error-word-vector-graph}
+		As we increase $\varepsilon$ (left) or $c$ (right), the laminar error increases for our word vector graph with $10^4$ vertices and $5\cdot 10^6$ edges.}
+\end{figure}
+
+For both graphs we see an approximately linear increase in laminar error as {\(c\)}
+increases, and sublinear increase for {\(\varepsilon\)}. From our
 earlier analysis, for graphs of this size we want
   {\(\varepsilon \approx 0.3\)} and {\(c \approx 2\)}, which would give
 the average vertex at most ten potential clusters, around {\(1\%\)} of
-the total number of clusters. This is pretty good. It would be
-interesting for a future paper to explore a recursive strategy using
-these candidate clusters, instead of just assigning vertices through a
-loop of the largest candidates.
+the total number of clusters, narrowing down potential clusters tremendously. In our implementation we assigned vertices to one of these clusters arbitrarily, but it would be interesting for future work to create a better algorithm for assigning clusters in the final step.
 
 \hypertarget{conclusion}{%
   \subsection{Conclusion}\label{conclusion}}
 
 In this paper, we implemented Sepehr Assadi and Chen
-Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be discovered algorithm with near optimal cost and sublinear running time in the number of edges.
+Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. For this $\varepsilon$, we found that setting $c = 2$ gave a good tradeoff between accuracy and run time. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be-sdiscovered algorithm with near optimal cost and sublinear running time in the number of edges.
 
 \hypertarget{references}{%
   \subsection{References}\label{references}}
