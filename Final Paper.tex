@@ -69,14 +69,12 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Implementation of Sublinear Clustering Algorithm (Rough Draft)},
-  pdfauthor={James Camacho and Joseph Camacho},
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
+  pdftitle={Implementation of Sublinear Clustering Algorithm },
+  pdfauthor={James Camacho and Joseph Camacho},}
 
-\title{Implementation of Sublinear Clustering Algorithm (Rough Draft)}
+\title{Implementation of Sublinear Clustering Algorithm}
 \author{James Camacho and Joseph Camacho}
-\date{December 12, 2022}
+\date{December 14, 2022}
 
 \begin{document}
 \maketitle
@@ -321,14 +319,25 @@ to the top percentiles of these dot products, and minus-edges to the
 bottom. Changing this fraction allows for sparser or denser graphs.
 
 For all levels of sparsity, we see an error trend similar to that of the
-random graphs:\\
-\includegraphics[width=\textwidth]{images/percentile_change.png}\\
-For both the random graph and the graph based on word vectors, the best
-clustering occurs when {\(\varepsilon\)} is slightly larger than
-  {\(0.25\)}.
+random graphs. Both have optimal clustering when $\varepsilon$ is slightly larger
+than $0.25$.
+\begin{figure}[!htb]
+  \centering{
+    \includegraphics[width=\textwidth]{images/percentile_change.png}
+  }
+  \caption{\label{fig:percentile-change}
+  For a wide range of percentiles, the error trend is similar to that of the
+  randomly constructed graphs.}
+\end{figure}
 
-Likewise, the running time improves as {\(\varepsilon\)} increases:\\
-\includegraphics[width=0.5\textwidth]{images/running_time_as_eps_varies_word_vector.png}
+Likewise, the running time improves as {\(\varepsilon\)} increases.\\
+\begin{figure}[!htb]
+  \centering{
+    \includegraphics[width=0.5\textwidth]{images/running_time_as_eps_varies_word_vector.png}
+  }
+  \caption{\label{fig:running-time-word-vector}
+  As $\varepsilon$ increases, the running time decreases.}
+\end{figure}
 
 This suggests several things, most notably that filtering by isolated
 neighbors is actually detrimental to the performance of the algorithm!
@@ -364,41 +373,53 @@ In the previous section, we showed that a good choice of
   {\(\varepsilon\)} is not much more than {\(0.25\)}. For this section, we
 set {\(\varepsilon = 0.3\)}.
 
-Using the random graph, we get the following approximations as {\(c\)}
-varies:\\
-\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies.png}\\
-Using the word vector graph gives a similar chart:\\
-\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies_word_vector.png}
+Using both the random graph and the word vector graph, we can see that the optimal
+clustering occurs when $c \approx 2$.\\
+\begin{figure}[!htb]
+  \centering{
+\includegraphics[width=0.45\textwidth]{images/error_ratio_as_c_varies.png}
+\includegraphics[width=0.45\textwidth]{images/error_ratio_as_c_varies_word_vector.png}
 
-In both cases, the running time scales linearly with {\(c\)}:
+}
+  \caption{\label{fig:errors-as-c-varies}
+  In both the random graph (left) and word vector graph (right), the clustering is
+  optimal around $c = 2$.}
+\end{figure}
 
+In both cases, the running time also scales linearly with {\(c\)}. A good trade off, then, between runtime and error ratio appears to be
+setting {\(c \approx 2\)}.
+\begin{figure}[!htb]
+  \centering{
 \begin{tabular}{cc}
   Random & Word Vector\\
   \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies.png}
          &
   \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies_word_vector.png}\\
 \end{tabular}
-
-A good trade off, then, between runtime and error ratio appears to be
-setting {\(c \approx 2\)}.
+}
+  \caption{\label{fig:running-time-c-varies}
+  As $c$ varies, the running time increases linearly.}
+\end{figure}
 
 \hypertarget{sublinear-time}{%
   \subsection{Sublinear Time}\label{sublinear-time}}
 
-It's easy enough to theoretically show that the
-algorithm described above is sublinear in the number of edges no matter
-what the specific choices of {\(\varepsilon\)} and {\(c\)} are. (Indeed,
-Assadi and Wang's paper is important not because their
-algorithm is sublinear in time, but because it has {\(O(1)\)}
-competitiveness.) In this section, we demonstrate this by analyzing the
-runtime for fixed {\(\varepsilon = 0.3\)} and {\(c = 2\)}.
+In their paper, Assadi and Wang mathematically proved that their algorithm
+runs in sublinear time in the number of edges for small enough $\varepsilon$.
+Specifically, they showed it ran in $O(|V| \log^2 |V|)$ time, where $|V|$
+is the number of vertices of the graph. In this section, we explore whether
+this same relation holds for much larger $\varepsilon$---$\varepsilon$ around
+$0.25$--and a fixed $c = 2$. (Unfortunately, we don't have the compute available
+to empirically show their bound holds true for $\varepsilon < 1 / 360$.)
 
-TODO: Uh oh James! This doesn't actually work! The
-graphs appear to have linear time!!!
-
-\includegraphics[width=0.5\textwidth]{images/running_time_as_edges_varies.png}
-\includegraphics[width=0.5\textwidth]{images/running_time_as_edges_varies_word_vector.png}
-
+\begin{figure}[!htb]
+  \centering{
+\includegraphics[width=0.45\textwidth]{images/running_time_as_edges_varies.png}
+\includegraphics[width=0.45\textwidth]{images/running_time_as_edges_varies_word_vector.png}
+}
+  \caption{\label{fig:running-time-c-varies}
+  As $c$ varies, the running time increases linearly.}
+\end{figure}
 I think this is where we need the filter part! We have sublinear time
 for low {\(\varepsilon\)}. The following graph is for where
   {\(\varepsilon = 0.01\)}:\\

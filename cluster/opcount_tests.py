@@ -54,9 +54,10 @@ if __name__ == "__main__":
     #vertices, edges, clusters, prob_flip = 1_000, 1_000_000, 10, 0.10
     #graph = RandomGraph(vertices, edges, clusters, prob_flip)
     graph = vector_graph(10000, 0.05, 0.05)
+    #graph = word_graph()
     
-
-    # Make graph for comparing several values of epsilon
+    
+    """# Make graph for comparing several values of epsilon
     # in a log-log graph
     ops_data = []
     acs_data = []
@@ -83,20 +84,21 @@ if __name__ == "__main__":
     plt.title(r"Running time as $\varepsilon$ varies")
     plt.show()
 
-    plt.loglog(eps_list, err, label="Error Ratio")
+    plt.loglog(eps_list, err, label="Error")
     plt.xlabel(r"edges")
-    plt.title(r"Error ratio as $\varepsilon$ varies")
-    plt.legend()
+    plt.title(r"Error as $\varepsilon$ varies")
+    plt.legend()"""
+    
 
     """
-    # Make graph for finding optimal epsilon
+    # Make graph for varying edges
     ops_data = []
     acs_data = []
     err_data = []
     edges_list = [10_000 * i for i in range(1, 40, 1)]
     for edges in edges_list:
-        c = 1
-        eps = 1 / 361
+        c = 2
+        eps = 0.3
         vertices, edges, clusters, prob_flip = 10_000, edges, 10, 0.1
         graph = RandomGraph(vertices, edges, clusters, prob_flip)
         #ratio = min(0.5, edges / (9978 ** 2))
@@ -136,7 +138,7 @@ if __name__ == "__main__":
     print(eps, cs)
     """
 
-    """
+    
     # Make graph for finding optimal $c$:
 
     ops_data = []
@@ -165,11 +167,11 @@ if __name__ == "__main__":
     plt.title(r"Running time as $c$ varies")
     plt.show()
 
-    plt.plot(c_list, err, label="Error Ratio")
+    plt.plot(c_list, err, label="Error as $c$ varies")
     plt.xlabel(r"$c$")
-    plt.title(r"Error ratio as $c$ varies")
+    plt.title(r"Error as $c$ varies")
     plt.legend()
-    """
+    
 
     """
     # Make graph for finding optimal $\varepsilon$:
