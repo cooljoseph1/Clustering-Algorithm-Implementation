@@ -448,8 +448,7 @@ loop of the largest candidates.
   \subsection{Conclusion}\label{conclusion}}
 
 In this paper, we implemented Sepehr Assadi and Chen
-Wang's algorithm for correlation clustering and
-empirically showed that their theoretical results held true.
+Wang's algorithm for correlation clustering. Although they only proved theoretical results when $\varepsilon < 1/360$, we empirically found a dip in error just above $\varepsilon = 0.25$. This suggests the sparse vertex filtering from step three dramatically reduces the accuracy for a small speedup in running time. When $\varepsilon\approx 0.3$ we found an error ratio of approximately ten times the cost for our graph with 10 million edges, much better than the theoretical $10^5$-factor for $\varepsilon = 1/360$. In addition, each vertex had approximately ten different clusters it could belong to. These are incredibly good results, sorting vertices into the top 1\% of all clusters. It would be interesting to see a future algorithm employ a recursive strategy here. Altogether, these results hint that there's a yet-to-be discovered algorithm with near optimal cost and sublinear running time in the number of edges.
 
 \hypertarget{references}{%
   \subsection{References}\label{references}}
