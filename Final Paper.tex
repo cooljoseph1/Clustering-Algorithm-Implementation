@@ -88,8 +88,8 @@ Draft)}\label{implementation-of-sublinear-clustering-algorithm-rough-draft}}
 \subsection{By James Camacho and Joseph
 Camacho}\label{by-james-camacho-and-joseph-camacho}}
 
-\hypertarget{overview}{%
-\subsubsection{Introduction}\label{overview}}
+\hypertarget{introduction}{%
+\subsubsection{Introduction}\label{introduction}}
 
 A (+/-)-graph contains plus-edges and minus-edges, corresponding to positive or negative correlation between two vertices. For example, in a graph of a thesaurus there would be plus-edges between synonyms and minus-edges between antonyms. The clustering problem involves assigning labels to each vertex, trying to assign more highly correlated vertices with the same label. More precisely, a cost function is introduced, with one unit of cost for every pair of correlated vertices assigned different labels and anticorrelated vertices with the same label. In very large, very dense graphs, simply reading every edge can take a very long time, $O(n^2)$ in the number of vertices. We cannot do better than an $\Omega(n)$ algorithm, as every vertex must be assigned a label. This clustering problem is NP, but polynomial approximation schemes are known to exist. In this paper we implement one such approximation scheme by \href{https://doi.org/10.48550/arxiv.2109.14528}{Assadi and Wang} that runs in $\tilde{O}(n)$ time. The running time is $O(n\log^2 n\varepsilon^{-2})$ for some input $\varepsilon$, and it yields an $O(\varepsilon^{-2})$-factor approximation (in terms of cost).
 
