@@ -51,22 +51,53 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
 
-    #vertices, edges, clusters, prob_flip = 10_000, 1_000_000, 10, 0.10
+    #vertices, edges, clusters, prob_flip = 1_000, 1_000_000, 10, 0.10
     #graph = RandomGraph(vertices, edges, clusters, prob_flip)
-    #graph = vector_graph(10000, 0.05, 0.05)
+    graph = vector_graph(10000, 0.05, 0.05)
     
 
+    # Make graph for comparing several values of epsilon
+    # in a log-log graph
+    ops_data = []
+    acs_data = []
+    err_data = []
+    eps_list = [0.5, 0.3, 0.2, 0.1] + [1 / n for n in range(15, 400, 10)]
+    for eps in eps_list:
+        c = 1
+        ops, acs, err, opt_err = test(graph, eps, c)
+        ops_data.append(ops)
+        acs_data.append(acs)
+        err_data.append(err / opt_err)
+        print("(Graph Length, epsilon, c) =", len(graph), eps, c)
+        print("(Operations, Graph accesses) =", ops, acs)
+        print("(Clustering error, Optimal error, ratio) =", err, opt_err, err / opt_err)
 
-    
+
+    ops = np.array(ops_data)
+    acs = np.array(acs_data)
+    err = np.array(err_data)
+    plt.loglog(eps_list, ops, label="Operation Count")
+    plt.loglog(eps_list, acs, label="Access Count")
+    plt.xlabel(r"edges")
+    plt.legend()
+    plt.title(r"Running time as $\varepsilon$ varies")
+    plt.show()
+
+    plt.loglog(eps_list, err, label="Error Ratio")
+    plt.xlabel(r"edges")
+    plt.title(r"Error ratio as $\varepsilon$ varies")
+    plt.legend()
+
+    """
     # Make graph for finding optimal epsilon
     ops_data = []
     acs_data = []
     err_data = []
-    edges_list = [1000, 2000, 3000, 4000] + [1_000 * i for i in range(6, 20, 3)]
+    edges_list = [10_000 * i for i in range(1, 40, 1)]
     for edges in edges_list:
         c = 1
-        eps = 0.01
-        vertices, edges, clusters, prob_flip = 1_000, edges, 10, 0.3
+        eps = 1 / 361
+        vertices, edges, clusters, prob_flip = 10_000, edges, 10, 0.1
         graph = RandomGraph(vertices, edges, clusters, prob_flip)
         #ratio = min(0.5, edges / (9978 ** 2))
         #print("Ratio is", ratio)
@@ -94,7 +125,7 @@ if __name__ == "__main__":
     plt.xlabel(r"edges")
     plt.title(r"Error ratio as #edges varies")
     plt.legend()
-    
+    """
 
     """
     cs = []

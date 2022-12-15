@@ -86,7 +86,12 @@ def cluster(G, eps=0.2, c=0.1, verbose=0, check_laminar=False):
         if len(G+[v]) == 0:
             N_sample[v] = set()
             continue
-        N_sample[v] = set(random.choices(G+[v], k=t))
+        x = len(G+[v])
+        N_sample[v] = set()
+        temp = t
+        while temp >= x and len(N_sample[v]) < x:
+            N_sample[v] |= set(random.choices(G+[v], k=min(x, temp)))
+            temp -= x
         operation_counter.add_graph_access(t)
 
     # (iv)

@@ -1,3 +1,4 @@
+
 % Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
@@ -81,59 +82,63 @@
 \maketitle
 
 \hypertarget{implementation-of-sublinear-clustering-algorithm-rough-draft}{%
-\section{Implementation of Sublinear Clustering Algorithm (Rough
-Draft)}\label{implementation-of-sublinear-clustering-algorithm-rough-draft}}
+  \section{Implementation of Sublinear Clustering Algorithm (Rough
+    Draft)}\label{implementation-of-sublinear-clustering-algorithm-rough-draft}}
 
 \hypertarget{by-james-camacho-and-joseph-camacho}{%
-\subsection{By James Camacho and Joseph
-Camacho}\label{by-james-camacho-and-joseph-camacho}}
+  \subsection{By James Camacho and Joseph
+    Camacho}\label{by-james-camacho-and-joseph-camacho}}
 
 \hypertarget{overview}{%
-\subsubsection{Overview}\label{overview}}
+  \subsubsection{Overview}\label{overview}}
 
-We implement the algorithm
+We implement Algorithm 1 in
 \href{https://doi.org/10.48550/arxiv.2109.14528}{"Sublinear Time and
-Space Algorithms for Correlation Clustering via Sparse-Dense
-Decompositions"} by Sepehr Assadi and Chen Wang. This clusters data in a
-(+/-)-labeled graph, where pluses mean two vertices are correlated and
-minuses mean anticorrelation. For example, a graph of all English words
-could have pluses between synonyms and minuses between antonyms. In
-other datasets, such as document clustering, these graphs can be
+  Space Algorithms for Correlation Clustering via Sparse-Dense
+  Decompositions"} by Sepehr Assadi and Chen Wang. This algorithm implements
+correlation clustering, the goal of which is to cluster nodes in a (+/-)-labeled
+graph such that the number of +'s between elements of different clusters and
+-'s between elements of the same cluster is minimzed. For example, a graph of
+all English words could have pluses between synonyms and minuses between
+antonyms, and the goal might be to form clusters of semantically related words.
+In other datasets, such as document clustering, these graphs can be
 incredibly large and dense, leading to a superlinear number of edges
-compared to the vertices. Even a single pass through the edges can be
-infeasible. This algorithm presents an approximation scheme that is
-{\(\overset{\sim}{O}(n)\)} in the number of vertices, often sublinear in
-the size of the dataset.
+compared to the vertices. On such graphs, even a single pass through the edges can be
+infeasible. Assadi and Wang's paper presents an approximation scheme
+that uses only {\(\tilde{O}(n)\)} vertices and {\(\tilde{O}(n)\)} edges
+(where $\tilde{O}(\cdot)$ is $O(\cdot)$ ignoring logarithmic factors),
+which is often sublinear in the size of the input.
 
 It requires access to the plus-labeled edges in an adjacency list, and
 works as follows:
 
 \begin{enumerate}
-\tightlist
-\item
-  Sample a constant number of edges from each vertex.
-\item
-  Choose a random (sublinear) number of vertices and query every edge of
-  these vertices.
-\item
-  Filter these vertices using the sampled edges from step one to find
-  the densest ones.
-\item
-  Create candidates for the clusters based on the dense vertices and
-  their neighbors.
-\item
-  Find approximate clusters from the candidates.
+  \tightlist
+  \item
+        Sample a constant number of edges from each vertex.
+  \item
+        Choose a random (sublinear) number of vertices and query every edge of
+        these vertices.
+  \item
+        Filter these vertices using the sampled edges from step one to find
+        the densest ones.
+  \item
+        Create candidates for the clusters based on the dense vertices and
+        their neighbors.
+  \item
+        Find approximate clusters from the candidates.
 \end{enumerate}
 
 If the constants are chosen right, there should be a high probability
-that the candidate clusters in step four form a laminar group, i.e. each
-candidate is either disjoint or a subset to any other candidate. Then,
+that the candidate clusters in step four form what Assadi and Wang call
+a \emph{laminar collection}, a collection of sets for which any two sets
+are either disjoint or one is a superset of the other. Then,
 step five consists of assigning each vertex to the largest candidate
-it\textquotesingle s contained in. If it isn\textquotesingle t contained
+it's contained in. If it isn't contained
 in any candidate clusters, it is assumed to be pretty isolated and
 assigned to its own cluster.
 
-We can define a cost for the clustering-\/-\/-each time two vertices are
+We can define a cost for the clustering---each time two vertices are
 put in different clusters but have a plus-edge between them, the cost is
 increased by one. Similarly if two vertices share a minus-edge but get
 put in the same cluster, the cost increases by one. It turns out the
@@ -150,58 +155,58 @@ edges for a particular vertex? What bounds do you use to filter dense
 vertices?
 
 The paper suggests sampling {\(t = O(\varepsilon^{- 2}\log n)\)}
-vertices for some constant {\(\varepsilon\)}. This {\(\varepsilon\)} is
-never specified in the paper, but certain theoretical results of theirs
-require that {\(\varepsilon < 1/360\)}.
+vertices for some small constant {\(\varepsilon\)}. The particular
+  {\(\varepsilon\)} is
+never explicitly chosen in their paper, but certain theorems of theirs
+are proved in the specific case that {\(\varepsilon < 1/360\)}.
 
 In step two, a vertex {\(v\)} is chosen with probability
-{\(O(\log n/\deg(v))\)}. Note that this rewards sparser vertices---in a
+  {\(O(\log n/\deg(v))\)}. Note that this rewards sparser vertices---in a
 complete graph with {\(n\)} vertices you would only expect
-{\(O(\log n)\)} vertices, and thus {\(O(n\log n)\)} edges to be sampled,
+  {\(O(\log n)\)} vertices, and thus {\(O(n\log n)\)} edges to be sampled,
 while a tree would have nearly every vertex chosen. Overall, steps one
 and two only require us to sample
-{\(\overset{\sim}{O}(n\varepsilon^{- 2})\)} edges.
+  {\(\tilde{O}(n\varepsilon^{- 2})\)} edges.
 
 The filtering in step three is a little more complicated. First, all
-vertices that have much denser neighbors should be filtered out. This is
+vertices that have many neighbors that are densor than them should be filtered out. This is
 according to the formula
-{\[\varepsilon\deg(v) < |\{ u\text{~neighbors~}v:\deg(u) > (1 + \varepsilon)\deg(v)\}|.\]}Then,
-sparse vertices are filtered out. Call the \emph{low} neighbors of
-{\(v\)} the vertices {\(u\)} where
-{\[\deg(u) < (1 + 7\varepsilon)\deg(v).\]}A low neighbor {\(u\)} is
+  {\[\varepsilon\deg(v) < |\{ u\text{~neighbors~}v:\deg(u) > (1 + \varepsilon)\deg(v)\}|.\]}Then, sparse vertices are filtered out.
+Call a neighbor $u$ of $v$ \emph{low} if
+  {\[\deg(u) < (1 + 7\varepsilon)\deg(v).\]}A low neighbor {\(u\)} is
 \emph{isolated} if
-{\[|\text{sampled\ neighbors}(u) \cap \text{low}(v)| < (1 - 4\varepsilon)t,\]}i.e.
+  {\[|\text{sampled\ neighbors}(u) \cap \text{low}(v)| < (1 - 4\varepsilon)t,\]}i.e.
 very few of its neighbors are also low neighbors of {\(v\)}. If a large
 fraction, at least {\(2\varepsilon\deg(v)\)}, of the low neighbors of
-{\(v\)} are isolated, then {\(v\)} is considered sparse.
-We\textquotesingle re left with only the densest vertices from our
+  {\(v\)} are isolated, then {\(v\)} is considered sparse.
+We're left with only the densest vertices from our
 sample in step two.
 
 From here, we use some more magic numbers to build candidate clusters.
 For each dense vertex {\(v\)}, we build a candidate set, including a low
 neighbor {\(u\)} if
-{\[1 + 22\varepsilon > \frac{\deg(u)}{\deg(v)} > \frac{(1 - 67\varepsilon)t}{|\text{sampled\ neighbors}(u) \cap \text{low}(v)|}.\]}Recall
+  {\[1 + 22\varepsilon > \frac{\deg(u)}{\deg(v)} > \frac{(1 - 67\varepsilon)t}{|\text{sampled\ neighbors}(u) \cap \text{low}(v)|}.\]}Recall
 that there are {\(t\)} sampled neighbors of {\(u\)}, so the right
 inequality means that most neighbors of {\(u\)} are also low neighbors
 of {\(v\)}. In most of our analysis we have {\(\varepsilon > 1/67\)}, so
-this inequality doesn\textquotesingle t do much, but it will serve to
+this inequality doesn't do much, but it will serve to
 increase accuracy as {\(\varepsilon\)} gets very small.
 
 In this paper we explore more how the choice of {\(\varepsilon\)} and
 constant multiplier in {\(t = O(\varepsilon^{- 2}\log n)\)} affect the
 operation count and accuracy of the algorithm. We answer questions like,
-exactly how close are the candidate clusters to a laminar set family?
+exactly how close are the candidate clusters to a laminar collection?
 How many intersections can we expect? Do we \emph{really} need
-{\(\varepsilon < 1/360\)} in practice, or would larger values like
-{\(\varepsilon = 1/64\)}, {\(\varepsilon = 1/2\)} or
-{\(\varepsilon \approx 1\)} fare equally well? How do sparser or denser
+  {\(\varepsilon < 1/360\)} in practice, or would larger values like
+  {\(\varepsilon = 1/64\)}, {\(\varepsilon = 1/2\)} or
+  {\(\varepsilon \approx 1\)} fare equally well? How do sparser or denser
 datasets change these results?
 
 \hypertarget{choice-of-varepsilon}{%
-\subsection{\texorpdfstring{Choice of
-{\(\varepsilon\)}}{Choice of \textbackslash varepsilon}}\label{choice-of-varepsilon}}
+  \subsection{\texorpdfstring{Choice of
+        {\(\varepsilon\)}}{Choice of \textbackslash varepsilon}}\label{choice-of-varepsilon}}
 
-Assadi and Wang\textquotesingle s main result is that their algorithm
+Assadi and Wang's main result is that their algorithm
 results in a constant-approximation of the optimal clustering in
 sublinear time. However, the quality of this constant depends very much
 on their choice of {\(\varepsilon\)}. In particular, they showed that
@@ -231,7 +236,15 @@ while a marked improvement in accurracy for the random dataset. Note
 that determining the optimum for the thesaurus dataset is NP-hard, so we
 instead give the error count.
 
-\includegraphics{images/opposite_trends.png}\\
+\begin{figure}[!htb]
+  \center{
+    \includegraphics[width=\textwidth]{images/opposite_trends.png}
+  }
+  \caption{\label{fig:opposite-trends}
+    When run on the graph built from a thesaurus (top), the error dramatically increases
+    as $\varepsilon$ transitions from less than $0.25$ to more than $0.25$. The exact
+    opposite trend is observed on a dataset built from random clusters (bottom).}
+\end{figure}
 This difference likely arises as there are only \textasciitilde8,000
 antonyms compared to \textasciitilde200,000 synonyms in the thesaurus.
 Putting all words into one cluster is guaranteed to have very few
@@ -239,24 +252,56 @@ errors, while separating into multiple clusters risks synonyms being in
 different clusters.
 
 For the random dataset, we see this rapid improvement at
-{\(\varepsilon = 0.25\)} even as we change the fraction of edge
+  {\(\varepsilon = 0.25\)} even as we change the fraction of edge
 correlations that are flipped, how many clusters there are, or the size
 of the graph. For example, the below graphs show the algorithm run with
-{\(\varepsilon < 0.25\)} and {\(\varepsilon > 0.25\)} and a varying
-number of edges. Even with very few edges we have over four times the
-error when {\(\varepsilon < 0.25\)}, and as it gets denser this
-increases to over twenty times!
+  {\(\varepsilon = 0.2\)} and {\(\varepsilon = 0.3\)}, and a varying
+number of edges, 10\% of which are flipped. Observe that even the least
+competitive result when $\varepsilon = 0.3$ is still better than the most
+competitive result when $\varepsilon = 0.2$.
 
-\begin{longtable}[]{@{}cc@{}}
-\toprule()
-{\(\varepsilon < 0.25\)} & {\(\varepsilon > 0.25\)} \\
-\midrule()
-\endhead
-\includegraphics{images/error_ratio_as_edges_varies_low_epsilon.png}
-&
-\includegraphics{images/error_ratio_as_edges_varies_high_epsilon.png} \\
-\bottomrule()
-\end{longtable}
+\begin{figure}[!htb]
+    \begin{tabular}{cc}
+      {\(\varepsilon  = 0.2\)} & {\(\varepsilon = 0.3\)}\\
+      \includegraphics[width=0.5\textwidth]{images/error_ratio_as_edges_varies_eps_equals_0.2.png}
+      &
+      \includegraphics[width=0.5\textwidth]{images/error_ratio_as_edges_varies_eps_equals_0.3.png}\\
+    \end{tabular}
+    \caption{\label{fig:error-ratio-as-edges-varies}
+    For both $\varepsilon = 0.2$ (left) and $\varepsilon = 0.3$ (right), the
+    algorithm remains about the same competitive as the number of edges
+    increases. However, larger $\varepsilon$ does consistently yield
+    a better competitive ratio.}
+\end{figure}
+
+Finally, we note that choosing an extremely small $\varepsilon$ gives no improvement
+on both the randomly constructed graph and the graph based on the thesaurus. This could be
+because such effects are impossible to observe except in very large graphs, since the number
+of edges sampled per node is proportional to $\varepsilon^2$. Nevertheless, we think it's
+plausible that even in large graphs the optimal choice of $\varepsilon$ is around $0.25$.
+Whether $\varepsilon$ should be above or below $0.25$, though, appears to depend on the
+structure of the graph.
+
+\begin{figure}[!htb]
+  \begin{tabular}{cc}
+    {\(\varepsilon  = 0.2\)} & {\(\varepsilon = 0.3\)}\\
+    \includegraphics[width=0.5\textwidth]{images/error_ratio_as_eps_varies_loglog_thesaurus.png}
+    &
+    \includegraphics[width=0.5\textwidth]{images/error_ratio_as_eps_varies_loglog.png}\\
+  \end{tabular}
+  \caption{\label{fig:error-ratio-small-eps}
+  In both the thesaurus graph (left) and random graph (right), the error
+  ratio fails to improve as $\varepsilon$ is decreased, even when it passes
+  criticaldatasets, the error ratio is significantly better for large $\varepsilon$
+  For both $\varepsilon = 0.2$ (left) and $\varepsilon = 0.3$ (right), the
+  algorithm remains about the same competitive as the number of edges
+  increases. However, larger $\varepsilon$ does consistently yield
+  a better competitive ratio.}
+\end{figure}
+
+\hypertarget{word-vector-dataset}{%
+  \subsection{Word Vector Dataset}\label{word-vector-dataset}}
+
 
 To get a denser model based on real-world data, we create a new dataset
 using word vectors. It is well known their dot products are a measure of
@@ -267,19 +312,19 @@ bottom. Changing this fraction allows for sparser or denser graphs.
 
 For all levels of sparsity, we see an error trend similar to that of the
 random graphs:\\
-\includegraphics{images/percentile_change.png}\\
+\includegraphics[width=\textwidth]{images/percentile_change.png}\\
 For both the random graph and the graph based on word vectors, the best
 clustering occurs when {\(\varepsilon\)} is slightly larger than
-{\(0.25\)}.
+  {\(0.25\)}.
 
 Likewise, the running time improves as {\(\varepsilon\)} increases:\\
-\includegraphics{images/running_time_as_eps_varies_word_vector.png}
+\includegraphics[width=0.5\textwidth]{images/running_time_as_eps_varies_word_vector.png}
 
 This suggests several things, most notably that filtering by isolated
 neighbors is actually detrimental to the performance of the algorithm!
-Although it\textquotesingle s theoretically necessary to do this
+Although it's theoretically necessary to do this
 filtering to gurantee an {\(O(1)\)} approximation (as the thesaurus
-dataset somewhat shows), in practice it\textquotesingle s not only
+dataset somewhat shows), in practice it's not only
 faster to not do so, but also more accurate.
 
 In conclusion, real world data often looks similar to the random dataset
@@ -287,15 +332,15 @@ we built, and for these types of data, setting {\(\varepsilon\)} to be
 slightly more than {\(0.25\)} is a good choice.
 
 \hypertarget{choice-of-c}{%
-\subsection{\texorpdfstring{Choice of
-{\(c\)}}{Choice of c}}\label{choice-of-c}}
+  \subsection{\texorpdfstring{Choice of
+        {\(c\)}}{Choice of c}}\label{choice-of-c}}
 
 In their paper, Assadi and Wang state that "there is an absolute
 constant {\(c > 0\)}" for which their algorithm works, but they never
 specify exactly what {\(c\)} has to be. In fact, they only imply what
 restrictions {\(c\)} might have by constraints on other variables. These
 constraints imply that {\(c\)} to be on the order of at least
-{\(\varepsilon^{2}\)}. Since {\(\varepsilon^{2}\)} is rather small, this
+  {\(\varepsilon^{2}\)}. Since {\(\varepsilon^{2}\)} is rather small, this
 means that {\(c\)} can be just about anything.
 
 Nevertheless, setting {\(c = \varepsilon^{2}\)} is hardly useful. While
@@ -306,58 +351,52 @@ what {\(c\)} should be, and demonstrate that {\(c \approx 2\)} yields
 good results with competitive results.
 
 In the previous section, we showed that a good choice of
-{\(\varepsilon\)} is not much more than {\(0.25\)}. For this section, we
+  {\(\varepsilon\)} is not much more than {\(0.25\)}. For this section, we
 set {\(\varepsilon = 0.3\)}.
 
 Using the random graph, we get the following approximations as {\(c\)}
 varies:\\
-\includegraphics{images/error_ratio_as_c_varies.png}\\
+\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies.png}\\
 Using the word vector graph gives a similar chart:\\
-\includegraphics{images/error_ratio_as_c_varies_word_vector.png}
+\includegraphics[width=0.5\textwidth]{images/error_ratio_as_c_varies_word_vector.png}
 
 In both cases, the running time scales linearly with {\(c\)}:
 
-\begin{longtable}[]{@{}cc@{}}
-\toprule()
-Random & Word Vector \\
-\midrule()
-\endhead
-\includegraphics{images/running_time_as_c_varies.png}
-&
-\includegraphics{images/running_time_as_c_varies_word_vector.png} \\
-\bottomrule()
-\end{longtable}
+\begin{tabular}{cc}
+  Random & Word Vector\\
+  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies.png}
+         &
+  \includegraphics[width=0.5\textwidth]{images/running_time_as_c_varies_word_vector.png}\\
+\end{tabular}
 
 A good trade off, then, between runtime and error ratio appears to be
 setting {\(c \approx 2\)}.
 
 \hypertarget{sublinear-time}{%
-\subsection{Sublinear Time}\label{sublinear-time}}
+  \subsection{Sublinear Time}\label{sublinear-time}}
 
-It\textquotesingle s easy enough to theoretically show that the
+It's easy enough to theoretically show that the
 algorithm described above is sublinear in the number of edges no matter
 what the specific choices of {\(\varepsilon\)} and {\(c\)} are. (Indeed,
-Assadi and Wang\textquotesingle s paper is important not because their
+Assadi and Wang's paper is important not because their
 algorithm is sublinear in time, but because it has {\(O(1)\)}
 competitiveness.) In this section, we demonstrate this by analyzing the
 runtime for fixed {\(\varepsilon = 0.3\)} and {\(c = 2\)}.
 
-TODO: Uh oh James! This doesn\textquotesingle t actually work! The
-graphs appear to have linear time!!!\\
-Random \textbar{} Word Vector\\
-:-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
-\includegraphics{images/running_time_as_edges_varies.png}
-\textbar{}
-\includegraphics{images/running_time_as_edges_varies_word_vector.png}
+TODO: Uh oh James! This doesn't actually work! The
+graphs appear to have linear time!!!
+
+\includegraphics[width=0.5\textwidth]{images/running_time_as_edges_varies.png}
+\includegraphics[width=0.5\textwidth]{images/running_time_as_edges_varies_word_vector.png}
 
 I think this is where we need the filter part! We have sublinear time
 for low {\(\varepsilon\)}. The following graph is for where
-{\(\varepsilon = 0.01\)}:\\
-\includegraphics{images/error_ratio_as_edges_varies_low_epsilon.png}
+  {\(\varepsilon = 0.01\)}:\\
+\includegraphics[width=0.5\textwidth]{images/error_ratio_as_edges_varies_low_epsilon.png}
 
 \hypertarget{laminar-candidate-clusters}{%
-\subsection{Laminar Candidate
-Clusters}\label{laminar-candidate-clusters}}
+  \subsection{Laminar Candidate
+    Clusters}\label{laminar-candidate-clusters}}
 
 Assadi and Wang make the claim that the candidate clusters have a high
 probability of forming a laminar set family. Every pair of candidates
@@ -373,22 +412,22 @@ vertices and number of candidate sets gives the following graphs:
 {\(c = 2\)} is fixed, {\(\varepsilon\)} varies. \textbar{}
 {\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
 :-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
-\includegraphics{images/laminar_error_as_epsilon_varies.png}
+\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies.png}
 \textbar{}
-\includegraphics{images/laminar_error_as_c_varies.png}
+\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies.png}
 
 \textbf{Word vector graph,} {\(V = 10^{4},E = 5\%\)}.\\
 {\(c = 2\)} is fixed, {\(\varepsilon\)} varies. \textbar{}
 {\(\varepsilon = 0.3\)} is fixed, {\(c\)} varies.\\
 :-\/-\/-\/-:\textbar:-\/-\/-\/-:\\
-\includegraphics{images/laminar_error_as_epsilon_varies_word_vector.png}
+\includegraphics[width=0.5\textwidth]{images/laminar_error_as_epsilon_varies_word_vector.png}
 \textbar{}
-\includegraphics{images/laminar_error_as_c_varies_word_vector.png}\\
+\includegraphics[width=0.5\textwidth]{images/laminar_error_as_c_varies_word_vector.png}\\
 When {\(\varepsilon\)} is very small there are no candidates, but
 otherwise we see a linear increase in laminar error as {\(c\)}
 increases, and approximately sublinear for {\(\varepsilon\)}. From our
 earlier analysis, for graphs of this size we want
-{\(\varepsilon \approx 0.3\)} and {\(c \approx 2\)}, which would give
+  {\(\varepsilon \approx 0.3\)} and {\(c \approx 2\)}, which would give
 the average vertex at most ten potential clusters, around {\(1\%\)} of
 the total number of clusters. This is pretty good. It would be
 interesting for a future paper to explore a recursive strategy using
@@ -396,17 +435,17 @@ these candidate clusters, instead of just assigning vertices through a
 loop of the largest candidates.
 
 \hypertarget{conclusion}{%
-\subsection{Conclusion}\label{conclusion}}
+  \subsection{Conclusion}\label{conclusion}}
 
 In this paper, we implemented Sepehr Assadi and Chen
-Wang\textquotesingle s algorithm for correlation clustering and
+Wang's algorithm for correlation clustering and
 empirically showed that their theoretical results held true.
 
 \hypertarget{references}{%
-\subsection{References}\label{references}}
+  \subsection{References}\label{references}}
 
 \href{https://doi.org/10.48550/arxiv.2109.14528}{"Sublinear Time and
-Space Algorithms for Correlation Clustering via Sparse-Dense
-Decompositions"}
+  Space Algorithms for Correlation Clustering via Sparse-Dense
+  Decompositions"}
 
 \end{document}
