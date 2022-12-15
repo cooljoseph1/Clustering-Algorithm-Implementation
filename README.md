@@ -6,10 +6,14 @@ We are implementing ["Sublinear Time and Space Algorithms for Correlation Cluste
 ## Setup
 To install data, run
 ```
+git clone https://github.com/cooljoseph1/Clustering-Algorithm-Implementation.git
 bash setup.sh
 ```
 
-Ideas on what to check:
-- What is the probability it actually ends up being a laminar group of sets?
-- How close to optimal is it when we vary `eps` and `c`?
-- How does this compare with different data sets? Dictionary vs. random clusters?
+## Files
+`Final Paper.pdf` - Our final paper.
+`cluster/cluster.py` - Our implementation of Assadi & Wang's paper.
+`cluster/graph.py` - Builds random graphs, and contains a generic graph class.
+`cluster/load.py` - Loads the thesaurus graph.
+`cluster/load_vector.py` - Loads a word vector graph.
+`cluster/laminar_tests.py` - Some tests to check how close to laminar the candidate clusters are.
